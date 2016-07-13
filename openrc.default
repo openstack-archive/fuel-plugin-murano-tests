@@ -1,0 +1,14 @@
+export ENV_NAME=fuel_murano_plugin
+export VENV_PATH=$HOME/venv-murano-tests
+
+# Change this if you didn't use the default database password
+export DEVOPS_DB_PASSWORD=devops
+
+# Nodes characteristics
+export ADMIN_NODE_MEMORY=4096
+export ADMIN_NODE_CPU=2
+export SLAVE_NODE_MEMORY=6144
+
+# Locations for fuel-qa, MOS and plugins artefacts
+export FUELQA_GITREF=stable/9.0
+export ISO_PATH=$HOME/iso/MirantisOpenStack-9.0.iso
