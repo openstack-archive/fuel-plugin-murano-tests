@@ -17,18 +17,14 @@ from murano_plugin_tests import settings
 
 
 name = 'detach-murano'
-role_name = ['murano-node']
+role_name = 'murano-node'
 plugin_path = settings.MURANO_PLUGIN_PATH
 version = helpers.get_plugin_version(plugin_path)
 
-murano_user = 'murano'
-murano_db_password = 'murano_db_password'
 glare = True
 a_o_o = 'http://storage.apps.openstack.org/'
 
 default_options = {
-    'murano_user_password/value': murano_user,
-    'murano_db_password/value': murano_db_password,
     'murano_glance_artifacts/value': glare,
     'murano_repo_url/value': a_o_o
 }

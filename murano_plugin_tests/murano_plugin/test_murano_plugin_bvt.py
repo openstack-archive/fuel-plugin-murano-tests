@@ -18,7 +18,6 @@ from plugin_settings import base_nodes
 from proboscis import test
 
 
-
 @test(groups=["plugins"])
 class TestMuranoPluginBvt(api.MuranoPluginApi):
     """Class for bvt testing the Murano plugin."""
@@ -43,7 +42,6 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Duration 120m
         Snapshot deploy_murano_bvt
         """
-        self.check_run("deploy_ceilometer_redis")
         self.env.revert_snapshot("ready_with_5_slaves")
 
         self.prepare_plugin()

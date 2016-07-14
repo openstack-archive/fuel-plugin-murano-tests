@@ -125,6 +125,7 @@ class PluginHelper(object):
         :type options: boolean
         :returns: None
         """
+
         if options is None:
             options = {}
         msg = "Plugin {0} isn't found.".format(name)
