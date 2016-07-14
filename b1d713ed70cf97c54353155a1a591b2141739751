@@ -1,0 +1,8 @@
+Code-Review+2: Denis Egorenko <degorenko@mirantis.com>
+Workflow+1: Denis Egorenko <degorenko@mirantis.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Thu, 14 Jul 2016 12:27:46 +0000
+Reviewed-on: https://review.openstack.org/342143
+Project: openstack/fuel-plugin-murano-tests
+Branch: refs/heads/master
