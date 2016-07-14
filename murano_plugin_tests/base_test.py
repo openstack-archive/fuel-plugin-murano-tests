@@ -17,10 +17,9 @@ import abc
 from fuelweb_test.tests import base_test_case
 import six
 
-from stacklight_tests.helpers import checkers
-from stacklight_tests.helpers import helpers
-from stacklight_tests.helpers import remote_ops
-from stacklight_tests.helpers import ui_tester
+from murano_plugin_tests.helpers import checkers
+from murano_plugin_tests.helpers import helpers
+from murano_plugin_tests.helpers import remote_ops
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -79,4 +78,3 @@ class PluginApi(object):
         """Enable and configure the plugin in the environment.
         """
         pass
-
