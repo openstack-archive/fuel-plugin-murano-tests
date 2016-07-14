@@ -188,7 +188,7 @@ class PluginHelper(object):
         self._cluster_id = self.env.fuel_web.create_cluster(
             name=name,
             settings=settings,
-            mode='ha',
+            mode='ha_compact',
             configure_ssl=ssl)
         return self._cluster_id
 
