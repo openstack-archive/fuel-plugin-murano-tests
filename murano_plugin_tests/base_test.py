@@ -38,27 +38,14 @@ class PluginApi(object):
         return getattr(self.test, item)
 
     @property
-    def base_nodes(self):
-        """Return a dict mapping nodes to Fuel roles without HA."""
-        return {
-            'slave-01': ['controller'],
-            'slave-02': ['compute', 'cinder'],
-            'slave-03': self.settings.role_name,
-        }
-
-    @property
-    def full_ha_nodes(self):
+    def ha_nodes(self):
         """Return a dict mapping nodes to Fuel roles with HA."""
         return {
             'slave-01': ['controller'],
             'slave-02': ['controller'],
             'slave-03': ['controller'],
             'slave-04': ['compute', 'cinder'],
-            'slave-05': ['compute', 'cinder'],
-            'slave-06': ['compute', 'cinder'],
-            'slave-07': self.settings.role_name,
-            'slave-08': self.settings.role_name,
-            'slave-09': self.settings.role_name,
+            'slave-05': ['compute'] + self.settings.role_name,
         }
 
     @abc.abstractmethod
