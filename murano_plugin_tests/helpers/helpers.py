@@ -181,6 +181,8 @@ class PluginHelper(object):
         :type name: str
         :param settings: optional dict containing the cluster's configuration.
         :type settings: dict
+        :param ssl: parameter, that shows, use SSL or not.
+        :type ssl: bool
         :returns: the cluster's id
         :rtype: str
         """

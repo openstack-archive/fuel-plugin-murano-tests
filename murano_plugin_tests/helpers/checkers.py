@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from contextlib import closing
+import contextlib
 import socket
 
 from proboscis import asserts
@@ -69,5 +69,6 @@ def check_port(address, port):
     :param port: server port
     :type port: str
     """
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+    with contextlib.closing(
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
         return sock.connect_ex((address, port)) == 0

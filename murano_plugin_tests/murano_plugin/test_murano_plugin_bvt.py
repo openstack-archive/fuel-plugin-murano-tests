@@ -13,9 +13,9 @@
 #    under the License.
 
 from fuelweb_test.helpers.decorators import log_snapshot_after_test
-from murano_plugin_tests.murano_plugin import api
-from plugin_settings import base_nodes
 from proboscis import test
+
+from murano_plugin_tests.murano_plugin import api
 
 
 @test(groups=["plugins"])
@@ -50,7 +50,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.activate_plugin()
 
-        self.helpers.deploy_cluster(base_nodes)
+        self.helpers.deploy_cluster(self.ha_nodes)
 
         self.run_ostf()
 
