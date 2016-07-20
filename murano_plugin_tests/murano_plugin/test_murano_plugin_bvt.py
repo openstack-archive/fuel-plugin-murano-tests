@@ -22,8 +22,42 @@ from murano_plugin_tests.murano_plugin import api
 class TestMuranoPluginBvt(api.MuranoPluginApi):
     """Class for bvt testing the Murano plugin."""
 
+    @test(depends_on_groups=['prepare_slaves_3'],
+          groups=["deploy_murano_plugin", "deploy",
+                  "murano", "bvt"])
+    @log_snapshot_after_test
+    def deploy_murano_plugin(self):
+        """Deploy a cluster with the Murano plugin
+
+        Scenario:
+            1. Upload the Murano plugin to the master node
+            2. Install the plugin
+            3. Create the cluster
+            4. Add 1 node with controller role
+            5. Add 1 node with compute and cinder roles
+            6. Add 1 node with murano-node roles
+            7. Deploy the cluster
+            8. Run OSTF
+
+        Duration 90m
+        Snapshot deploy_murano_bvt
+        """
+        self.env.revert_snapshot("ready_with_3_slaves")
+
+        self.prepare_plugin()
+
+        self.helpers.create_cluster(name=self.__class__.__name__)
+
+        self.activate_plugin()
+
+        self.helpers.deploy_cluster(self.base_nodes)
+
+        self.run_ostf()
+
+        self.env.make_snapshot("deploy_murano_plugin", is_make=True)
+
     @test(depends_on_groups=['prepare_slaves_5'],
-          groups=["deploy_murano_bvt", "deploy",
+          groups=["deploy_murano_plugin_ha", "deploy",
                   "murano", "bvt"])
     @log_snapshot_after_test
     def deploy_murano_plugin_ha(self):
@@ -40,7 +74,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
             8. Run OSTF
 
         Duration 120m
-        Snapshot deploy_murano_bvt
+        Snapshot deploy_murano_plugin_ha
         """
         self.env.revert_snapshot("ready_with_5_slaves")
 
@@ -54,4 +88,4 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.run_ostf()
 
-        self.env.make_snapshot("deploy_murano_bvt", is_make=True)
+        self.env.make_snapshot("deploy_murano_plugin_ha", is_make=True)
