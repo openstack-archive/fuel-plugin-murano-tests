@@ -17,7 +17,7 @@ from murano_plugin_tests import settings
 
 
 name = 'detach-murano'
-role_name = 'murano-node'
+role_name = ['murano-node']
 plugin_path = settings.MURANO_PLUGIN_PATH
 version = helpers.get_plugin_version(plugin_path)
 
@@ -30,11 +30,3 @@ default_options = {
 }
 
 murano_options = default_options
-
-base_nodes = {
-    'slave-01': ['controller'],
-    'slave-02': ['controller'],
-    'slave-03': ['controller'],
-    'slave-04': ['compute', 'cinder'],
-    'slave-05': ['compute', role_name],
-}

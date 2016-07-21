@@ -9,6 +9,9 @@ export ADMIN_NODE_MEMORY=4096
 export ADMIN_NODE_CPU=2
 export SLAVE_NODE_MEMORY=6144
 
-# Locations for fuel-qa, MOS and plugins artefacts
-export FUELQA_GITREF=stable/9.0
+# Locations for fuel-qa, MOS and plugins artifacts
+export FUELQA_GITREF=stable/mitaka
 export ISO_PATH=$HOME/iso/MirantisOpenStack-9.0.iso
+
+# Location of the plugin
+export MURANO_PLUGIN_PATH=$HOME/plugins/detach-murano-1.0-1.0.0-1.noarch.rpm
