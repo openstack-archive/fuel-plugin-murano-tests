@@ -125,6 +125,7 @@ class PluginHelper(object):
         :type options: boolean
         :returns: None
         """
+        self.fuel_web.check_plugin_exists(self.cluster_id, name)
 
         if options is None:
             options = {}
@@ -181,6 +182,8 @@ class PluginHelper(object):
         :type name: str
         :param settings: optional dict containing the cluster's configuration.
         :type settings: dict
+        :param ssl: parameter, that shows, use SSL or not.
+        :type ssl: bool
         :returns: the cluster's id
         :rtype: str
         """
