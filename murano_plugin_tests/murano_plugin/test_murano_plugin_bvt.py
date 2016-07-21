@@ -93,3 +93,45 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         self.run_ostf()
 
         self.env.make_snapshot("deploy_murano_plugin_ha", is_make=True)
+
+    @test(depends_on=[deploy_murano_plugin],
+          groups=["uninstall_deployed_murano_plugin", "uninstall",
+                  "murano_plugin", "smoke"])
+    @log_snapshot_after_test
+    def uninstall_deployed_murano_plugin(self):
+        """Uninstall the Murano plugin with a deployed environment
+
+        Scenario:
+            1.  Try to remove the plugins using the Fuel CLI
+            2.  Check plugins can't be uninstalled on deployed cluster.
+            3.  Remove the environment.
+            4.  Remove the plugins.
+
+        Duration 20m
+        """
+        self.env.revert_snapshot("deploy_murano_plugin")
+
+        self.check_uninstall_failure()
+
+        self.fuel_web.delete_env_wait(self.helpers.cluster_id)
+
+        self.uninstall_plugin()
+
+    @test(depends_on_groups=["prepare_slaves_3"],
+          groups=["uninstall_murano_plugin", "uninstall", "murano_plugin",
+                  "smoke"])
+    @log_snapshot_after_test
+    def uninstall_murano_plugin(self):
+        """Uninstall the Murano plugin
+
+        Scenario:
+            1.  Install the plugins.
+            2.  Remove the plugins.
+
+        Duration 5m
+        """
+        self.env.revert_snapshot("ready_with_3_slaves")
+
+        self.prepare_plugins()
+
+        self.uninstall_plugin()
