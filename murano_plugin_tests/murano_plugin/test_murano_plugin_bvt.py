@@ -27,7 +27,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
                   "murano", "bvt"])
     @log_snapshot_after_test
     def deploy_murano_plugin(self):
-        """Deploy a cluster with the Murano plugin
+        """Deploy a cluster with the Murano plugin.
 
         Scenario:
             1. Upload the Murano plugin to the master node
@@ -63,7 +63,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
                   "murano", "bvt"])
     @log_snapshot_after_test
     def deploy_murano_plugin_ha(self):
-        """Deploy a cluster with the Murano plugin
+        """Deploy a cluster with the Murano plugin in HA mode.
 
         Scenario:
             1. Upload the Murano plugin to the master node
@@ -93,6 +93,42 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         self.run_ostf()
 
         self.env.make_snapshot("deploy_murano_plugin_ha", is_make=True)
+
+    @test(depends_on_groups=['prepare_slaves_9'],
+          groups=["deploy_murano_plugin_full_ha", "deploy",
+                  "murano", "bvt"])
+    @log_snapshot_after_test
+    def deploy_murano_plugin_full_ha(self):
+        """Deploy a cluster with the Murano plugin in full HA mode.
+
+        Scenario:
+            1. Upload the Murano plugin to the master node
+            2. Install the plugin
+            3. Create the cluster
+            4. Add 3 node with controller role
+            5. Add 3 node with compute and cinder roles
+            6. Add 3 node with murano-node role
+            7. Deploy the cluster
+            8. Run OSTF
+
+        Duration 150m
+        Snapshot deploy_murano_plugin_full_ha
+        """
+        self.check_run("deploy_murano_plugin_full_ha")
+
+        self.env.revert_snapshot("ready_with_9_slaves")
+
+        self.prepare_plugin()
+
+        self.helpers.create_cluster(name=self.__class__.__name__)
+
+        self.activate_plugin()
+
+        self.helpers.deploy_cluster(self.full_ha_nodes)
+
+        self.run_ostf()
+
+        self.env.make_snapshot("deploy_murano_plugin_full_ha", is_make=True)
 
     @test(depends_on=[deploy_murano_plugin],
           groups=["uninstall_deployed_murano_plugin", "uninstall",

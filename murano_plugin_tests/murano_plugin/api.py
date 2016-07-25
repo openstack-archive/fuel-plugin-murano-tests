@@ -54,6 +54,21 @@ class MuranoPluginApi(object):
             'slave-05': ['compute'] + self.settings.role_name,
         }
 
+    @property
+    def full_ha_nodes(self):
+        """Return a dict mapping nodes to Fuel roles with full HA."""
+        return {
+            'slave-01': ['controller'],
+            'slave-02': ['controller'],
+            'slave-03': ['controller'],
+            'slave-04': ['compute', 'cinder'],
+            'slave-05': ['compute', 'cinder'],
+            'slave-06': ['compute', 'cinder'],
+            'slave-07': self.settings.role_name,
+            'slave-08': self.settings.role_name,
+            'slave-09': self.settings.role_name,
+        }
+
     def prepare_plugin(self):
         """Upload and install the plugin on the Fuel master node."""
         self.helpers.prepare_plugin(self.settings.plugin_path)
@@ -68,6 +83,15 @@ class MuranoPluginApi(object):
             options = self.settings.default_options
         self.helpers.activate_plugin(
             self.settings.name, self.settings.version, options)
+
+    def check_plugin_online(self):
+        """Checks that plugin is working."""
+        test_name = ('fuel_health.tests.tests_platform.test_murano_linux.'
+                     'MuranoDeployLinuxServicesTests.'
+                     'test_deploy_dummy_app_with_glare')
+        self.helpers.run_single_ostf(test_sets=['tests_platform'],
+                                     test_name=test_name,
+                                     timeout=60 * 20)
 
     def uninstall_plugin(self):
         """Uninstall plugin from Fuel."""

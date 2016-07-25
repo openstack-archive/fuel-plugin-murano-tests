@@ -40,6 +40,7 @@ class CloseSSHConnectionsPlugin(plugins.Plugin):
 
 def import_tests():
     from murano_plugin import test_murano_plugin_bvt  # noqa
+    from murano_plugin import test_system  # noqa
 
 
 def run_tests():
