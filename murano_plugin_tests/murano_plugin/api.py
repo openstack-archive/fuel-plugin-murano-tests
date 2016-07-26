@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import functools
+
 from fuelweb_test.tests import base_test_case
 
 from murano_plugin_tests.helpers import checkers
@@ -101,3 +103,16 @@ class MuranoPluginApi(object):
     def check_uninstall_failure(self):
         return self.helpers.check_plugin_cannot_be_uninstalled(
             self.settings.name, self.settings.version)
+
+    def check_plugin_failover(self, operation, role_name):
+        fuel_web_client = self.helpers.fuel_web
+        operations = {
+            "soft_reboot": fuel_web_client.warm_restart_nodes,
+            "hard_reboot": functools.partial(
+                fuel_web_client.cold_restart_nodes, wait_offline=False)
+        }
+        nailgun_nodes = fuel_web_client.get_nailgun_cluster_nodes_by_roles(
+            self.helpers.cluster_id, role_name)
+        target_node = fuel_web_client.get_devops_nodes_by_nailgun_nodes(
+            nailgun_nodes[:1])
+        operations[operation](target_node)
