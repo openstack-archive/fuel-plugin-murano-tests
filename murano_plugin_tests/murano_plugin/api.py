@@ -12,6 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import functools
+
+from devops.helpers import helpers as devops_helpers
+from fuelweb_test import logger
 from fuelweb_test.tests import base_test_case
 
 from murano_plugin_tests.helpers import checkers
@@ -101,3 +105,33 @@ class MuranoPluginApi(object):
     def check_uninstall_failure(self):
         return self.helpers.check_plugin_cannot_be_uninstalled(
             self.settings.name, self.settings.version)
+
+    def wait_plugin_online(self, timeout=5 * 60):
+        """Wait until the plugin will start working properly.
+        """
+
+        def check_availability():
+            try:
+                self.check_plugin_online()
+                return True
+            except AssertionError:
+                return False
+
+        logger.info('Wait a plugin become online')
+        msg = "Plugin has not become online after a waiting period"
+        devops_helpers.wait(
+            check_availability, interval=30, timeout=timeout, timeout_msg=msg)
+
+    def check_plugin_failover(self, operation, role_name):
+        fuel_web_client = self.helpers.fuel_web
+        operations = {
+            "soft_reboot": fuel_web_client.warm_restart_nodes,
+            "hard_reboot": functools.partial(
+                fuel_web_client.cold_restart_nodes, wait_offline=False)
+        }
+        nailgun_nodes = fuel_web_client.get_nailgun_cluster_nodes_by_roles(
+            self.helpers.cluster_id, role_name)
+        target_node = fuel_web_client.get_devops_nodes_by_nailgun_nodes(
+            nailgun_nodes[:1])
+        operations[operation](target_node)
+        self.wait_plugin_online()
