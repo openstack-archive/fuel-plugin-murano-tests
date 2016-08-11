@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
+
 set -x
 
-export SSH_OPTS='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-export FUEL_PASSWD='r00tme'
+SSH_OPTS='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+FUEL_PASSWD='r00tme'
 
 SNAPSHOT_NAME=$(dos.py snapshot-list "$ENV_NAME" | tail -1 | awk '{print $1}')
 
 dos.py revert-resume "$ENV_NAME" "$SNAPSHOT_NAME"
 
-ADMIN_NODE_IP=$(dos.py net-list $ENV_NAME | tail -1 | awk '{print $2}' | sed 's|/.*||g' | sed 's|.$|2|g')
+ADMIN_NODE_IP=$(dos.py net-list "${ENV_NAME}" | tail -1 | awk '{print $2}' | sed 's|/.*||g' | sed 's|.$|2|g')
 
-echo "LOG: fuel-master ip=$ADMIN_NODE_IP"
+echo "LOG: fuel-master ip=${ADMIN_NODE_IP}"
 
-CONTROLLER_ID=`echo 'fuel node | \
-                     grep controller | \
-                     awk '\''{print $1}'\'' | \
-                     head -1' | \
-                     sshpass -p "$FUEL_PASSWD" \
-              ssh ${SSH_OPTS} -T root@"$ADMIN_NODE_IP"`
+CONTROLLER_ID=$(echo 'fuel nodes | awk "/controller/ {print \$1;exit}"' | \
+                sshpass -p "${FUEL_PASSWD}" \
+                ssh "${SSH_OPTS}" -T "root@${ADMIN_NODE_IP}")
+
+echo "LOG: Controller node id=${CONTROLLER_ID}"
 
 wget -qO- https://get.docker.com/ | sh
 
@@ -26,15 +26,13 @@ wget -qO- https://get.docker.com/ | sh
 sudo -H docker build -t rally-tempest "$WORKSPACE/utils/jenkins/rally-tempest/latest"
 sudo -H docker save -o ./dimage rally-tempest
 sudo chown "${USER}:${USER}" ./dimage
-sshpass -p "$FUEL_PASSWD" scp ${SSH_OPTS} dimage root@"$ADMIN_NODE_IP":/root/rally
+sshpass -p "${FUEL_PASSWD}" scp "${SSH_OPTS}" dimage "root@${ADMIN_NODE_IP}:/root/rally"
 
-echo "scp /root/rally node-$CONTROLLER_ID:/root/rally" | sshpass -p "$FUEL_PASSWD" ssh ${SSH_OPTS} -T root@"$ADMIN_NODE_IP"
+echo "scp /root/rally node-${CONTROLLER_ID}:/root/rally" | sshpass -p "$FUEL_PASSWD" ssh "${SSH_OPTS}" -T "root@${ADMIN_NODE_IP}"
 
 echo 'wget -qO- https://get.docker.com/ | sh' > ssh_scr.sh
 
 cat "$WORKSPACE/utils/jenkins/prepare_controller.sh" >> ssh_scr.sh
-
-echo '' >> ssh_scr.sh
 
 cat >> ssh_scr.sh <<'EOF'
 
@@ -72,24 +70,24 @@ EOF
 chmod +x ssh_scr.sh
 
 ##### Copying script to master node, then to controller #####
-sshpass -p "$FUEL_PASSWD" scp ${SSH_OPTS} ssh_scr.sh root@"$ADMIN_NODE_IP":/root/ssh_scr.sh
-echo "scp /root/ssh_scr.sh node-$CONTROLLER_ID:/root/ssh_scr.sh" | sshpass -p "$FUEL_PASSWD" ssh ${SSH_OPTS} -T root@"$ADMIN_NODE_IP"
+sshpass -p "$FUEL_PASSWD" scp "${SSH_OPTS}" ssh_scr.sh "root@${ADMIN_NODE_IP}:/root/ssh_scr.sh"
+echo "scp /root/ssh_scr.sh node-${CONTROLLER_ID}:/root/ssh_scr.sh" | sshpass -p "$FUEL_PASSWD" ssh "${SSH_OPTS}" -T root@"$ADMIN_NODE_IP"
 
 ##### Executing script from admin node on controller node: #####
 EXEC_CMD="echo 'chmod +x /root/ssh_scr.sh && /bin/bash -xe /root/ssh_scr.sh > /root/log.log' | ssh -T node-$CONTROLLER_ID"
-echo "$EXEC_CMD" | sshpass -p "$FUEL_PASSWD" ssh ${SSH_OPTS} -T root@"$ADMIN_NODE_IP"
+echo "$EXEC_CMD" | sshpass -p "${FUEL_PASSWD}" ssh "${SSH_OPTS}" -T "root@${ADMIN_NODE_IP}"
 
 ##########################################################
 ##### Copying results from controller to admin node: #####
 ##### and then to host in workspace folder           #####
 ##########################################################
 GET_RES_CMD="scp node-$CONTROLLER_ID:/var/lib/rally-tempest-container-home-dir/verification.xml /root/verification.xml"
-echo "$GET_RES_CMD" |  sshpass -p "$FUEL_PASSWD" ssh ${SSH_OPTS} -T root@"$ADMIN_NODE_IP"
-sshpass -p "$FUEL_PASSWD" scp ${SSH_OPTS} root@"$ADMIN_NODE_IP":/root/verification.xml "$WORKSPACE/logs/"
+echo "$GET_RES_CMD" |  sshpass -p "${FUEL_PASSWD}" ssh "${SSH_OPTS}" -T "root@${ADMIN_NODE_IP}"
+sshpass -p "$FUEL_PASSWD" scp "${SSH_OPTS}" "root@${ADMIN_NODE_IP}:/root/verification.xml" "$WORKSPACE/logs/"
 
 GET_LOG_CMD="scp node-$CONTROLLER_ID:/root/log.log /root/log.log"
-echo "$GET_LOG_CMD" |  sshpass -p "$FUEL_PASSWD" ssh ${SSH_OPTS} -T root@"$ADMIN_NODE_IP"
-sshpass -p "$FUEL_PASSWD" scp ${SSH_OPTS} root@"$ADMIN_NODE_IP":/root/log.log "$WORKSPACE/logs/"
+echo "$GET_LOG_CMD" |  sshpass -p "$FUEL_PASSWD" ssh "${SSH_OPTS}" -T "root@${ADMIN_NODE_IP}"
+sshpass -p "$FUEL_PASSWD" scp "${SSH_OPTS}" "root@${ADMIN_NODE_IP}:/root/log.log" "${WORKSPACE}/logs/"
 
 sudo rm -vf dimage
 sudo rm -vf ssh_scr.sh
