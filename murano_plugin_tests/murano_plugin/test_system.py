@@ -59,7 +59,7 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
         compute_manipulated_node = {'slave-04': ['compute', 'cinder']}
 
@@ -68,7 +68,7 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
         # Add controller
         # NOTE(rpromyshlennikov): test can fail here before
@@ -78,14 +78,14 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
         # Add compute
         self.helpers.add_nodes_to_cluster(compute_manipulated_node)
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
     @test(depends_on_groups=["deploy_murano_plugin_full_ha"],
           groups=["check_scaling_murano", "scaling",
@@ -117,11 +117,11 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
         # Add Murano Detach node
         self.helpers.add_nodes_to_cluster(manipulated_node)
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])

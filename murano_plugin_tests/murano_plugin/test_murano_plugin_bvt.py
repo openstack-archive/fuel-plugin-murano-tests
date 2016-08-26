@@ -54,7 +54,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.base_nodes)
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.env.make_snapshot("deploy_murano_plugin", is_make=True)
 
@@ -90,7 +90,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.ha_nodes)
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
         self.env.make_snapshot("deploy_murano_plugin_ha", is_make=True)
 
@@ -126,13 +126,13 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.full_ha_nodes)
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
         self.env.make_snapshot("deploy_murano_plugin_full_ha", is_make=True)
 
     @test(depends_on=[deploy_murano_plugin],
           groups=["uninstall_deployed_murano_plugin", "uninstall",
-                  "murano_plugin", "smoke"])
+                  "murano_plugin", "smoke", 'murano'])
     @log_snapshot_after_test
     def uninstall_deployed_murano_plugin(self):
         """Uninstall the Murano plugin with a deployed environment
@@ -155,7 +155,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
     @test(depends_on_groups=["prepare_slaves_3"],
           groups=["uninstall_murano_plugin", "uninstall", "murano_plugin",
-                  "smoke"])
+                  "smoke", 'murano'])
     @log_snapshot_after_test
     def uninstall_murano_plugin(self):
         """Uninstall the Murano plugin

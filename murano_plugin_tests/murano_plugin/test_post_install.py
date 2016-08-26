@@ -27,7 +27,7 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
 
     @test(depends_on_groups=["prepare_slaves_3"],
           groups=["deploy_environment_without_murano_plugin", "deploy",
-                  "murano_plugin", "post_installation"])
+                  "murano_plugin", "post_installation", 'murano'])
     @log_snapshot_after_test
     def deploy_environment_without_murano_plugin(self):
         """Deploy a cluster without the Murano Detach plugin.
@@ -60,14 +60,14 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
             'slave-02': ['compute', 'cinder'],
         })
 
-        self.helpers.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.env.make_snapshot("deploy_environment_without_murano_plugin",
                                is_make=True)
 
     @test(depends_on=[deploy_environment_without_murano_plugin],
           groups=["deploy_murano_plugin_in_existing_environment", "deploy",
-                  "murano_plugin", "post_installation"])
+                  "murano_plugin", "post_installation", 'murano'])
     @log_snapshot_after_test
     def deploy_murano_plugin_in_existing_environment(self):
         """Deploy the Murano Detach plugin in an existing environment.
@@ -92,4 +92,4 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.run_ostf()
+        self.run_ostf(['sanity', 'smoke', 'tests_platform'])

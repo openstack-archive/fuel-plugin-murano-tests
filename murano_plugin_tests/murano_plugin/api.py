@@ -77,9 +77,8 @@ class MuranoPluginApi(object):
         """Upload and install the plugin on the Fuel master node."""
         self.helpers.prepare_plugin(self.settings.plugin_path)
 
-    def run_ostf(self):
-        self.helpers.run_ostf(test_sets=['sanity', 'smoke', 'ha',
-                                         'tests_platform'])
+    def run_ostf(self, test_sets):
+        self.helpers.run_ostf(test_sets=test_sets)
 
     def activate_plugin(self, options=None):
         """Enable and configure the plugin in the environment."""
