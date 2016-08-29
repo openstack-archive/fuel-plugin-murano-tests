@@ -27,7 +27,7 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
           groups=["deploy_murano_and_plugin", "upgrade",
                   "murano"])
     @log_snapshot_after_test
-    def deploy_environment_with_murano_plugin(self):
+    def deploy_murano_plugin_in_environment_with_murano(self):
         """Upgrade Murano via plugin and run OSTF tests.
 
         Scenario:
@@ -55,7 +55,7 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
             'slave-02': ['compute'],
         })
 
-        self.helpers.run_ostf()
+        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.prepare_plugin()
 
@@ -68,7 +68,7 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.helpers.run_ostf()
+        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.env.make_snapshot("deploy_environment_with_murano_plugin",
                                is_make=True)
@@ -105,11 +105,11 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
             'slave-02': ['compute'],
         })
 
-        self.helpers.run_ostf()
+        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.prepare_plugin()
 
-        self.activate_plugin()
+        self.activate_plugin(['sanity', 'smoke', 'tests_platform'])
 
         self.helpers.deploy_cluster({
             'slave-03': plugin_settings.role_name,

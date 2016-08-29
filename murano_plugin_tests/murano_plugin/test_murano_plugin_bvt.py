@@ -23,6 +23,76 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
     """Class for bvt testing the Murano plugin."""
 
     @test(depends_on_groups=["prepare_slaves_3"],
+          groups=["deploy_murano_plugin_on_controller", "deploy",
+                  "deploy_murano_bvt", "murano", "bvt"])
+    @log_snapshot_after_test
+    def deploy_murano_plugin_on_controller(self):
+        """Deploy a cluster with the Murano plugin.
+
+        Scenario:
+            1. Upload the Murano plugin to the master node
+            2. Install the plugin
+            3. Create the cluster
+            4. Add 1 node with controller role
+            5. Add 1 node with compute and cinder roles
+            6. Deploy the cluster
+            7. Run OSTF
+
+        Duration 90m
+        Snapshot deploy_murano_plugin
+        """
+        self.check_run("deploy_murano_plugin")
+
+        self.env.revert_snapshot("ready_with_3_slaves")
+
+        self.prepare_plugin()
+
+        self.helpers.create_cluster(name=self.__class__.__name__)
+
+        self.activate_plugin()
+
+        self.helpers.deploy_cluster(self.only_controllers)
+
+        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+
+        self.env.make_snapshot("deploy_murano_plugin", is_make=True)
+
+    @test(depends_on_groups=["prepare_slaves_5"],
+          groups=["deploy_murano_plugin_on_controller_ha", "deploy",
+                  "deploy_murano_bvt", "murano", "bvt"])
+    @log_snapshot_after_test
+    def deploy_murano_plugin_on_controller_ha(self):
+        """Deploy a cluster with the Murano plugin.
+
+        Scenario:
+            1. Upload the Murano plugin to the master node
+            2. Install the plugin
+            3. Create the cluster
+            4. Add 3 node with controller role
+            5. Add 1 node with compute and cinder roles
+            6. Deploy the cluster
+            7. Run OSTF
+
+        Duration 90m
+        Snapshot deploy_murano_plugin
+        """
+        self.check_run("deploy_murano_plugin")
+
+        self.env.revert_snapshot("ready_with_3_slaves")
+
+        self.prepare_plugin()
+
+        self.helpers.create_cluster(name=self.__class__.__name__)
+
+        self.activate_plugin()
+
+        self.helpers.deploy_cluster(self.only_controllers_ha)
+
+        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+
+        self.env.make_snapshot("deploy_murano_plugin", is_make=True)
+
+    @test(depends_on_groups=["prepare_slaves_3"],
           groups=["deploy_murano_plugin", "deploy", "deploy_murano_bvt",
                   "murano", "bvt"])
     @log_snapshot_after_test
