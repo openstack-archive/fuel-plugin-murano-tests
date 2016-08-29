@@ -45,6 +45,7 @@ def import_tests():
     from murano_plugin import test_post_install  # noqa
     from murano_plugin import test_system  # noqa
 
+
 def run_tests():
     from proboscis import TestProgram  # noqa
     import_tests()

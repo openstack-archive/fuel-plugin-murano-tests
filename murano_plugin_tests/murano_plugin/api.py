@@ -39,6 +39,24 @@ class MuranoPluginApi(object):
         return getattr(self.test, item)
 
     @property
+    def only_controllers_ha(self):
+        """Return a dict mapping nodes to Fuel roles with HA."""
+        return {
+            'slave-01': ['controller'],
+            'slave-02': ['controller'],
+            'slave-03': ['controller'],
+            'slave-04': ['compute', 'cinder']
+        }
+
+    @property
+    def only_controllers(self):
+        """Return a dict mapping nodes to Fuel roles non-HA."""
+        return {
+            'slave-01': ['controller'],
+            'slave-02': ['compute', 'cinder']
+        }
+
+    @property
     def base_nodes(self):
         """Return a dict mapping nodes to Fuel roles without HA."""
         return {
