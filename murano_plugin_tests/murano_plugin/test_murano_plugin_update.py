@@ -40,7 +40,7 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
             7. Run OSTF
 
         Duration 90m
-        Snapshot deploy_environment_with_murano_plugin
+        Snapshot deploy_murano_plugin_in_environment_with_murano
         """
 
         self.check_run("deploy_environment_with_murano_plugin")
@@ -70,8 +70,9 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
 
         self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
-        self.env.make_snapshot("deploy_environment_with_murano_plugin",
-                               is_make=True)
+        self.env.make_snapshot(
+            "deploy_murano_plugin_in_environment_with_murano",
+            is_make=True)
 
     @test(depends_on_groups=["prepare_slaves_3"],
           groups=["deploy_murano_and_plugin_add_role", "deploy",

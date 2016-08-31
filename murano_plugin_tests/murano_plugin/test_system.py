@@ -49,6 +49,7 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
             13. Run OSTF
 
         Duration 240m
+        Snapshot add_remove_controller_compute_murano
         """
         self.env.revert_snapshot("deploy_murano_plugin_full_ha")
 
@@ -87,6 +88,9 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
 
         self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
 
+        self.env.make_snapshot("add_remove_controller_compute_murano",
+                               is_make=False)
+
     @test(depends_on_groups=["deploy_murano_plugin_full_ha"],
           groups=["check_scaling_murano", "scaling",
                   "murano", "system",
@@ -107,6 +111,7 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
             7. Run OSTF
 
         Duration 120m
+        Snapshot add_remove_murano_node
         """
         self.env.revert_snapshot("deploy_murano_plugin_full_ha")
 
@@ -125,3 +130,5 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
         self.check_plugin_online()
 
         self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
+
+        self.env.make_snapshot("add_remove_murano_node", is_make=False)

@@ -80,7 +80,7 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
             5. Run OSTF
 
         Duration 60m
-
+        Snapshot deploy_murano_plugin_in_existing_environment
         """
         self.check_run("deploy_murano_plugin_in_existing_environment")
 

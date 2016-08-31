@@ -39,7 +39,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
             7. Run OSTF
 
         Duration 90m
-        Snapshot deploy_murano_plugin
+        Snapshot deploy_murano_plugin_on_controller
         """
         self.check_run("deploy_murano_plugin")
 
@@ -55,7 +55,8 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
-        self.env.make_snapshot("deploy_murano_plugin", is_make=True)
+        self.env.make_snapshot("deploy_murano_plugin_on_controller",
+                               is_make=True)
 
     @test(depends_on_groups=["prepare_slaves_5"],
           groups=["deploy_murano_plugin_on_controller_ha", "deploy",
@@ -74,7 +75,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
             7. Run OSTF
 
         Duration 90m
-        Snapshot deploy_murano_plugin
+        Snapshot deploy_murano_plugin_on_controller_ha
         """
         self.check_run("deploy_murano_plugin")
 
@@ -90,7 +91,8 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
-        self.env.make_snapshot("deploy_murano_plugin", is_make=True)
+        self.env.make_snapshot("deploy_murano_plugin_on_controller_ha",
+                               is_make=True)
 
     @test(depends_on_groups=["prepare_slaves_3"],
           groups=["deploy_murano_plugin", "deploy", "deploy_murano_bvt",
@@ -214,6 +216,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
             4.  Remove the plugins.
 
         Duration 20m
+        Snapshot uninstall_deployed_murano_plugin
         """
         self.env.revert_snapshot("deploy_murano_plugin")
 
@@ -235,6 +238,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
             2.  Remove the plugins.
 
         Duration 5m
+        Snapshot uninstall_murano_plugin
         """
         self.env.revert_snapshot("ready_with_3_slaves")
 

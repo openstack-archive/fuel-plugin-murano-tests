@@ -45,6 +45,7 @@ class TestMuranoFailover(api.MuranoPluginApi):
             3. Run OSTF.
 
         Duration 30m
+        Snapshot soft_reboot_murano_node
         """
         self._test_failover("soft_reboot", self.settings.role_name)
 
@@ -62,10 +63,11 @@ class TestMuranoFailover(api.MuranoPluginApi):
             3. Run OSTF.
 
         Duration 30m
+        Snapshot hard_reboot_murano_node
         """
         self._test_failover("hard_reboot", self.settings.role_name)
 
-    @test(depends_on_groups=["deploy_murano_plugin"],
+    @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
           groups=["failover", "murano", "system", "destructive",
                   "soft_reboot_controller_node_murano_plugin"])
     @log_snapshot_after_test
@@ -79,10 +81,11 @@ class TestMuranoFailover(api.MuranoPluginApi):
             3. Run OSTF.
 
         Duration 30m
+        Snapshot soft_reboot_controller_node_murano_plugin
         """
         self._test_failover("soft_reboot", ["controller"])
 
-    @test(depends_on_groups=["deploy_murano_plugin"],
+    @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
           groups=["failover", "murano", "system", "destructive",
                   "hard_reboot_controller_node_murano_plugin"])
     @log_snapshot_after_test
@@ -96,5 +99,6 @@ class TestMuranoFailover(api.MuranoPluginApi):
             3. Run OSTF.
 
         Duration 30m
+        Snapshot hard_reboot_controller_node_murano_plugin
         """
         self._test_failover("hard_reboot", ["controller"])
