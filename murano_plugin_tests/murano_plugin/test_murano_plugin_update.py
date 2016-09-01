@@ -43,17 +43,14 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
         Snapshot deploy_murano_plugin_in_environment_with_murano
         """
 
-        self.check_run("deploy_environment_with_murano_plugin")
+        self.check_run("deploy_murano_plugin_in_environment_with_murano")
 
         self.env.revert_snapshot("ready_with_3_slaves")
 
         self.helpers.create_cluster(name=self.__class__.__name__,
                                     settings={'murano': True})
 
-        self.helpers.deploy_cluster({
-            'slave-01': ['controller'],
-            'slave-02': ['compute'],
-        })
+        self.helpers.deploy_cluster(self.only_controllers)
 
         self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
@@ -61,18 +58,13 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
 
         self.activate_plugin()
 
-        self.helpers.deploy_cluster({
-            'slave-01': ['controller'],
-            'slave-02': ['compute'],
-        })
-
-        self.check_plugin_online()
+        self.helpers.apply_changes()
 
         self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.env.make_snapshot(
             "deploy_murano_plugin_in_environment_with_murano",
-            is_make=True)
+            is_make=False)
 
     @test(depends_on_groups=["prepare_slaves_3"],
           groups=["deploy_murano_and_plugin_add_role", "deploy",
@@ -101,24 +93,19 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
         self.helpers.create_cluster(name=self.__class__.__name__,
                                     settings={'murano': True})
 
-        self.helpers.deploy_cluster({
-            'slave-01': ['controller'],
-            'slave-02': ['compute'],
-        })
+        self.helpers.deploy_cluster(self.only_controllers)
 
         self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.prepare_plugin()
 
-        self.activate_plugin(['sanity', 'smoke', 'tests_platform'])
+        self.activate_plugin()
 
-        self.helpers.deploy_cluster({
+        self.helpers.add_nodes_to_cluster({
             'slave-03': plugin_settings.role_name,
         })
 
-        self.check_plugin_online()
-
-        self.helpers.run_ostf()
+        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
         self.env.make_snapshot("deploy_murano_node_in_environment_with_murano",
-                               is_make=True)
+                               is_make=False)

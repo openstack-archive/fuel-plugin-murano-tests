@@ -195,6 +195,14 @@ class PluginHelper(object):
             configure_ssl=ssl)
         return self._cluster_id
 
+    def apply_changes(self, check_services=False):
+        """Deploy changed cluster.
+
+        :param check_services: run OSTF after the deployment (default: False).
+        """
+        self.fuel_web.deploy_cluster_wait(self.cluster_id,
+                                          check_services=check_services)
+
     def deploy_cluster(self, nodes_roles, verify_network=False,
                        update_interfaces=True, check_services=True):
         """Assign roles to nodes and deploy the cluster.
@@ -216,8 +224,7 @@ class PluginHelper(object):
                                    update_interfaces=update_interfaces)
         if verify_network:
             self.fuel_web.verify_network(self.cluster_id)
-        self.fuel_web.deploy_cluster_wait(self.cluster_id,
-                                          check_services=check_services)
+        self.apply_changes(check_services=check_services)
 
     def run_ostf(self, *args, **kwargs):
         """Run the OpenStack health checks."""

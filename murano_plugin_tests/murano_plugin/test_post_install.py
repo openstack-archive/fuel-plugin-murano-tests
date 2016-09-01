@@ -26,8 +26,7 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
     """
 
     @test(depends_on_groups=["prepare_slaves_3"],
-          groups=["deploy_environment_without_murano_plugin", "deploy",
-                  "murano_plugin", "post_installation", 'murano'])
+          groups=["deploy_environment_without_murano_plugin", "deploy"])
     @log_snapshot_after_test
     def deploy_environment_without_murano_plugin(self):
         """Deploy a cluster without the Murano Detach plugin.
@@ -36,11 +35,8 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
             1. Create the cluster
             2. Add 1 node with the controller role
             3. Add 1 node with the compute and cinder roles
-            4. Upload the plugin to the master node
-            5. Install the plugin
-            6. Configure the plugin
-            8. Deploy cluster
-            8. Run OSTF
+            4. Deploy cluster
+            5. Run OSTF
 
         Duration 60m
         Snapshot deploy_environment_without_murano_plugin
@@ -49,16 +45,9 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
 
         self.env.revert_snapshot("ready_with_3_slaves")
 
-        self.prepare_plugin()
-
         self.helpers.create_cluster(name=self.__class__.__name__)
 
-        self.activate_plugin()
-
-        self.helpers.deploy_cluster({
-            'slave-01': ['controller'],
-            'slave-02': ['compute', 'cinder'],
-        })
+        self.helpers.deploy_cluster(self.only_controllers)
 
         self.run_ostf(['sanity', 'smoke', 'tests_platform'])
 
@@ -66,25 +55,33 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
                                is_make=True)
 
     @test(depends_on=[deploy_environment_without_murano_plugin],
-          groups=["deploy_murano_plugin_in_existing_environment", "deploy",
-                  "murano_plugin", "post_installation", 'murano'])
+          groups=[
+              "deploy_murano_plugin_with_murano_node_in_existing_environment",
+              "deploy", "murano_plugin", "post_installation", 'murano'])
     @log_snapshot_after_test
-    def deploy_murano_plugin_in_existing_environment(self):
-        """Deploy the Murano Detach plugin in an existing environment.
+    def deploy_murano_plugin_with_murano_node_in_existing_environment(self):
+        """Deploy Murano plugin with murano-node in an existing environment.
 
         Scenario:
             1. Revert snapshot with deployed cluster
-            2. Add 1 nodes with the plugin roles
-            3. Deploy the cluster
-            4. Check that Murano Detach plugin is running
-            5. Run OSTF
+            2. Upload and install plugin
+            3. Activate plugin
+            4. Add 1 nodes with the plugin roles
+            5. Deploy the cluster
+            6. Check that Murano Detach plugin is running
+            7. Run Murano Platform OSTF
 
         Duration 60m
-        Snapshot deploy_murano_plugin_in_existing_environment
+        Snapshot deploy_murano_plugin_with_murano_node_in_existing_environment
         """
-        self.check_run("deploy_murano_plugin_in_existing_environment")
+        self.check_run(
+            "deploy_murano_plugin_with_murano_node_in_existing_environment")
 
         self.env.revert_snapshot("deploy_environment_without_murano_plugin")
+
+        self.prepare_plugin()
+
+        self.activate_plugin()
 
         self.helpers.deploy_cluster({
             'slave-03': plugin_settings.role_name,
@@ -92,4 +89,33 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+    @test(depends_on=[deploy_environment_without_murano_plugin],
+          groups=["deploy_murano_plugin_on_controller_in_existing_environment",
+                  "deploy", "murano_plugin", "post_installation", 'murano'])
+    @log_snapshot_after_test
+    def deploy_murano_plugin_on_controller_in_existing_environment(self):
+        """Deploy Murano plugin with murano-node in an existing environment.
+
+        Scenario:
+            1. Revert snapshot with deployed cluster
+            2. Upload and install plugin
+            3. Activate plugin
+            4. Deploy the cluster
+            5. Check that Murano Detach plugin is running
+            6. Run Murano Platform OSTF
+
+        Duration 60m
+        Snapshot deploy_murano_plugin_on_controller_in_existing_environment
+        """
+        self.check_run(
+            "deploy_murano_plugin_on_controller_in_existing_environment")
+
+        self.env.revert_snapshot("deploy_environment_without_murano_plugin")
+
+        self.prepare_plugin()
+
+        self.activate_plugin()
+
+        self.helpers.apply_changes()
+
+        self.check_plugin_online()
