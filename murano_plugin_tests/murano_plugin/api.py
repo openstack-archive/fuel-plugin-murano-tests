@@ -152,3 +152,20 @@ class MuranoPluginApi(object):
             nailgun_nodes[:1])
         operations[operation](target_node)
         self.wait_plugin_online()
+
+    def run_puppet_apply(self, remote, path, modulepath, options='-d --test'):
+        """Runs puppet apply on remote node.
+
+        :param remote: SSH connection to the node.
+        :type remote: SSHClient
+        :param modulepath: moduelpath for puppet apply command.
+        :type modulepath: str
+        :param path: path to puppet manifest for puppet apply command.
+        :type path: str
+        :param options: additional options for puppet apply command.
+        :type options: str
+        """
+        return remote.execute('puppet apply --modulepath={0} {1} {2}'.format(
+            modulepath,
+            path,
+            options))
