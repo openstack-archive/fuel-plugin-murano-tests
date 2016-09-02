@@ -41,7 +41,6 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
         Duration 60m
         Snapshot deploy_environment_without_murano_plugin
         """
-        self.check_run("deploy_environment_without_murano_plugin")
 
         self.env.revert_snapshot("ready_with_3_slaves")
 
@@ -74,8 +73,6 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
         Duration 60m
         Snapshot deploy_murano_plugin_with_murano_node_in_existing_environment
         """
-        self.check_run(
-            "deploy_murano_plugin_with_murano_node_in_existing_environment")
 
         self.env.revert_snapshot("deploy_environment_without_murano_plugin")
 
@@ -107,8 +104,6 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
         Duration 60m
         Snapshot deploy_murano_plugin_on_controller_in_existing_environment
         """
-        self.check_run(
-            "deploy_murano_plugin_on_controller_in_existing_environment")
 
         self.env.revert_snapshot("deploy_environment_without_murano_plugin")
 

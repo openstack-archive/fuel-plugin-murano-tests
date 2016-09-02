@@ -43,8 +43,6 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
         Snapshot deploy_murano_plugin_in_environment_with_murano
         """
 
-        self.check_run("deploy_murano_plugin_in_environment_with_murano")
-
         self.env.revert_snapshot("ready_with_3_slaves")
 
         self.helpers.create_cluster(name=self.__class__.__name__,
@@ -86,7 +84,6 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
         Duration 120m
         Snapshot deploy_murano_node_in_environment_with_murano
         """
-        self.check_run("deploy_murano_node_in_environment_with_murano")
 
         self.env.revert_snapshot("ready_with_3_slaves")
 

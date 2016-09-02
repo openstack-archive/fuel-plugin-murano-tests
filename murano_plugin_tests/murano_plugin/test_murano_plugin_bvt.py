@@ -41,7 +41,6 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Duration 90m
         Snapshot deploy_murano_plugin_on_controller
         """
-        self.check_run("deploy_murano_plugin_on_controller")
 
         self.env.revert_snapshot("ready_with_3_slaves")
 
@@ -77,7 +76,6 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Duration 90m
         Snapshot deploy_murano_plugin_on_controller_ha
         """
-        self.check_run("deploy_murano_plugin_on_controller_ha")
 
         self.env.revert_snapshot("ready_with_3_slaves")
 
@@ -114,7 +112,6 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Duration 90m
         Snapshot deploy_murano_plugin
         """
-        self.check_run("deploy_murano_plugin")
 
         self.env.revert_snapshot("ready_with_3_slaves")
 
@@ -150,7 +147,6 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Duration 120m
         Snapshot deploy_murano_plugin_ha
         """
-        self.check_run("deploy_murano_plugin_ha")
 
         self.env.revert_snapshot("ready_with_5_slaves")
 
@@ -186,7 +182,6 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Duration 150m
         Snapshot deploy_murano_plugin_full_ha
         """
-        self.check_run("deploy_murano_plugin_full_ha")
 
         self.env.revert_snapshot("ready_with_9_slaves")
 
