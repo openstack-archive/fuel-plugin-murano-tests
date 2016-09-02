@@ -13,6 +13,8 @@
 #    under the License.
 
 from fuelweb_test.helpers.decorators import log_snapshot_after_test
+from fuelweb_test import logger
+from proboscis import asserts
 from proboscis import test
 
 from murano_plugin_tests.murano_plugin import api
@@ -240,3 +242,102 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         self.prepare_plugin()
 
         self.uninstall_plugin()
+
+    @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
+          groups=["check_plugin_idempotency_on_controller", "deploy",
+                  "murano", "idempotency"])
+    @log_snapshot_after_test
+    def check_plugin_idempotency_on_controller(self):
+        """Rerun puppet apply on controller and check plugin idempotency.
+
+        Scenario:
+            1. Revert snapshot with deployed cluster (controller + compute)
+            2. Run puppet apply for controller
+
+        Duration 10m
+        """
+
+        self.env.revert_snapshot("deploy_murano_plugin_on_controller")
+
+        modules_path = '/etc/puppet/modules/'
+        plugin_manifest_path = '/etc/fuel/plugins/detach-murano-1.0/manifests/'
+
+        contr_node = self.fuel_web.get_nailgun_node_by_name('slave-01')
+        controller_remote = self.env.d_env.get_ssh_to_remote(contr_node['ip'])
+
+        list_controller_manifests = [
+            (modules_path, 'murano_hiera_override.pp'),
+            (modules_path, 'pin_murano_plugin_repo.pp'),
+            ('modules:' + modules_path, 'murano.pp'),
+            ('modules:' + modules_path, 'murano_rabbitmq.pp'),
+            ('modules:' + modules_path, 'murano_cfapi.pp'),
+            ('modules:' + modules_path, 'murano_keystone.pp'),
+            ('modules:' + modules_path, 'murano_db.pp'),
+            ('modules:' + modules_path, 'murano_dashboard.pp'),
+            ('modules:' + modules_path, 'import_murano_package.pp'),
+            (modules_path, 'murano_logging.pp'),
+            (modules_path, 'update_openrc.pp'),
+            (modules_path, 'murano_haproxy.pp')]
+
+        for modulepath, manifest in list_controller_manifests:
+            res = self.run_puppet_apply(controller_remote,
+                                        plugin_manifest_path + manifest,
+                                        modulepath)
+            asserts.assert_equal(res['exit_code'],
+                                 0,
+                                 "Exit code {0} for {1}".format(
+                                     res['exit_code'], manifest))
+
+    @test(depends_on_groups=["deploy_murano_plugin"],
+          groups=["check_plugin_idempotency_on_murano_node", "deploy",
+                  "murano", "idempotency"])
+    @log_snapshot_after_test
+    def check_plugin_idempotency_on_murano_node(self):
+            """Rerun puppet apply on murano node and check plugin idempotency.
+
+            Scenario:
+                1. Revert snapshot with deployed cluster
+                2. Run puppet apply for murano node
+
+            Duration 10m
+            """
+
+            self.env.revert_snapshot("deploy_murano_plugin")
+
+            modules_path = '/etc/puppet/modules/'
+            plugin_manifest_path = '/etc/fuel/plugins/detach-murano-1.0/manifests/'
+            osnailyfacter_path = modules_path + 'osnailyfacter/modular/ssl/'
+
+            murano_node = self.fuel_web.get_nailgun_node_by_name('slave-03')
+            murano_remote = self.env.d_env.get_ssh_to_remote(murano_node['ip'])
+
+            list_murano_manifests = [
+                (modules_path, 'murano_hiera_override.pp'),
+                (modules_path, 'pin_murano_plugin_repo.pp'),
+                ('modules:' + modules_path, 'murano.pp'),
+                ('modules:' + modules_path, 'murano_rabbitmq.pp'),
+                ('modules:' + modules_path, 'murano_cfapi.pp'),
+                ('modules:' + modules_path, 'import_murano_package.pp'),
+                (modules_path, 'murano_logging.pp')]
+
+            list_ssl_manifests = [(modules_path, 'ssl_keys_saving.pp'),
+                                  (modules_path, 'ssl_add_trust_chain.pp'),
+                                  (modules_path, 'ssl_dns_setup.pp')]
+
+            for modulepath, manifest in list_murano_manifests:
+                res = self.run_puppet_apply(murano_remote,
+                                            plugin_manifest_path + manifest,
+                                            modulepath)
+                asserts.assert_equal(res['exit_code'],
+                                     0,
+                                     "Exit code {0} for {1}".format(
+                                         res['exit_code'], manifest))
+
+            for modulepath, manifest in list_ssl_manifests:
+                res = self.run_puppet_apply(murano_remote,
+                                            osnailyfacter_path + manifest,
+                                            modulepath)
+                asserts.assert_equal(res['exit_code'],
+                                     0,
+                                     "Exit code {0} for {1}".format(
+                                         res['exit_code'], manifest))
