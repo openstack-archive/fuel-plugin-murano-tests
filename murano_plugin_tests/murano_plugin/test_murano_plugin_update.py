@@ -24,25 +24,19 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
     """Class for testing upgrades for Murano plugin."""
 
     @test(depends_on_groups=["prepare_slaves_3"],
-          groups=["deploy_murano_and_plugin", "upgrade",
-                  "murano"])
+          groups=["deploy_murano_out_of_the_box", "murano"])
     @log_snapshot_after_test
-    def deploy_murano_plugin_in_environment_with_murano(self):
-        """Upgrade Murano via plugin and run OSTF tests.
+    def deploy_murano_out_of_the_box(self):
+        """Deploy Murano out of the box and run OSTF tests
 
         Scenario:
             1. Deploy Fuel Cluster with one controller and Murano
             2. Run OSTF
-            3. Upload plugin to master node
-            4. Install plugin
-            5. Activate plugin
-            6. Update cluster (Deploy changes)
-            7. Run OSTF
+            3. Make snapshot
 
         Duration 90m
-        Snapshot deploy_murano_plugin_in_environment_with_murano
+        Snapshot deploy_murano_out_of_the_box
         """
-
         self.env.revert_snapshot("ready_with_3_slaves")
 
         self.helpers.create_cluster(name=self.__class__.__name__,
@@ -51,6 +45,29 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
         self.helpers.deploy_cluster(self.only_controllers)
 
         self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
+
+        self.env.make_snapshot("deploy_murano_out_of_the_box", is_make=True)
+
+    @test(depends_on=[deploy_murano_out_of_the_box],
+          groups=["deploy_murano_and_plugin", "murano_plugin_upgrade",
+                  "murano",
+                  "deploy_murano_plugin_in_environment_with_murano"])
+    @log_snapshot_after_test
+    def deploy_murano_plugin_in_environment_with_murano(self):
+        """Upgrade Murano via plugin and run OSTF tests.
+
+        Scenario:
+            1. Revert shapshot with box murano installation
+            2. Upload plugin to master node
+            3. Install plugin
+            4. Activate plugin
+            5. Update cluster (Deploy changes)
+            6. Run OSTF
+
+        Duration 60m
+        Snapshot deploy_murano_plugin_in_environment_with_murano
+        """
+        self.env.revert_snapshot("deploy_murano_out_of_the_box")
 
         self.prepare_plugin()
 
@@ -64,35 +81,28 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
             "deploy_murano_plugin_in_environment_with_murano",
             is_make=False)
 
-    @test(depends_on_groups=["prepare_slaves_3"],
+    @test(depends_on=[deploy_murano_out_of_the_box],
           groups=["deploy_murano_and_plugin_add_role", "deploy",
-                  "murano"])
+                  "murano", "murano_plugin_upgrade",
+                  "deploy_murano_plugin_in_environment_with_murano"])
     @log_snapshot_after_test
     def deploy_murano_node_in_environment_with_murano(self):
         """Upgrade Murano via plugin (adding murano-node) and run OSTF tests.
 
         Scenario:
-            1. Deploy Fuel Cluster with one controller and Murano
-            2. Run OSTF
-            3. Upload plugin to master node
-            4. Install plugin
-            5. Activate plugin and add new node
+            1. Revert shapshot with box murano installation
+            2. Upload plugin to master node
+            3. Install plugin
+            4. Activate plugin and add new node
                with murano-node role to the cluster
-            6. Update cluster (Deploy changes)
-            7. Run OSTF
+            5. Update cluster (Deploy changes)
+            6. Run OSTF
 
-        Duration 120m
+        Duration 75m
         Snapshot deploy_murano_node_in_environment_with_murano
         """
 
-        self.env.revert_snapshot("ready_with_3_slaves")
-
-        self.helpers.create_cluster(name=self.__class__.__name__,
-                                    settings={'murano': True})
-
-        self.helpers.deploy_cluster(self.only_controllers)
-
-        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.env.revert_snapshot("deploy_murano_out_of_the_box")
 
         self.prepare_plugin()
 

@@ -77,7 +77,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
         Snapshot deploy_murano_plugin_on_controller_ha
         """
 
-        self.env.revert_snapshot("ready_with_3_slaves")
+        self.env.revert_snapshot("ready_with_5_slaves")
 
         self.prepare_plugin()
 
@@ -164,7 +164,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
     @test(depends_on_groups=['prepare_slaves_9'],
           groups=["deploy_murano_plugin_full_ha", "deploy",
-                  "murano", "bvt"])
+                  "murano", "bvt", "deploy_murano_bvt"])
     @log_snapshot_after_test
     def deploy_murano_plugin_full_ha(self):
         """Deploy a cluster with the Murano plugin in full HA mode.
@@ -199,7 +199,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
     @test(depends_on=[deploy_murano_plugin],
           groups=["uninstall_deployed_murano_plugin", "uninstall",
-                  "murano_plugin", "smoke", 'murano'])
+                  "murano_plugin", "smoke", 'murano', "deploy_murano_bvt"])
     @log_snapshot_after_test
     def uninstall_deployed_murano_plugin(self):
         """Uninstall the Murano plugin with a deployed environment
@@ -223,7 +223,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
     @test(depends_on_groups=["prepare_slaves_3"],
           groups=["uninstall_murano_plugin", "uninstall", "murano_plugin",
-                  "smoke", 'murano'])
+                  "smoke", 'murano', "deploy_murano_bvt"])
     @log_snapshot_after_test
     def uninstall_murano_plugin(self):
         """Uninstall the Murano plugin
