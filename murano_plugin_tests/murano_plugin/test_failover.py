@@ -24,8 +24,8 @@ class TestMuranoFailover(api.MuranoPluginApi):
     on controller or detached node fail.
     """
 
-    def _test_failover(self, operation, role_name):
-        self.env.revert_snapshot("deploy_murano_plugin")
+    def _test_failover(self, operation, role_name, snapshot_name):
+        self.env.revert_snapshot(snapshot_name)
 
         self.check_plugin_failover(operation, role_name)
 
@@ -47,7 +47,8 @@ class TestMuranoFailover(api.MuranoPluginApi):
         Duration 30m
         Snapshot soft_reboot_murano_node
         """
-        self._test_failover("soft_reboot", self.settings.role_name)
+        self._test_failover("soft_reboot", self.settings.role_name,
+                            "deploy_murano_plugin")
 
     @test(depends_on_groups=["deploy_murano_plugin"],
           groups=["failover", "murano", "system", "destructive",
@@ -65,7 +66,8 @@ class TestMuranoFailover(api.MuranoPluginApi):
         Duration 30m
         Snapshot hard_reboot_murano_node
         """
-        self._test_failover("hard_reboot", self.settings.role_name)
+        self._test_failover("hard_reboot", self.settings.role_name,
+                            "deploy_murano_plugin")
 
     @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
           groups=["failover", "murano", "system", "destructive",
@@ -83,7 +85,8 @@ class TestMuranoFailover(api.MuranoPluginApi):
         Duration 30m
         Snapshot soft_reboot_controller_node_murano_plugin
         """
-        self._test_failover("soft_reboot", ["controller"])
+        self._test_failover("soft_reboot", ["controller"],
+                            "deploy_murano_plugin_on_controller")
 
     @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
           groups=["failover", "murano", "system", "destructive",
@@ -101,4 +104,5 @@ class TestMuranoFailover(api.MuranoPluginApi):
         Duration 30m
         Snapshot hard_reboot_controller_node_murano_plugin
         """
-        self._test_failover("hard_reboot", ["controller"])
+        self._test_failover("hard_reboot", ["controller"],
+                            "deploy_murano_plugin_on_controller")
