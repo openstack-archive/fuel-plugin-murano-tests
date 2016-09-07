@@ -164,7 +164,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
     @test(depends_on_groups=['prepare_slaves_9'],
           groups=["deploy_murano_plugin_full_ha", "deploy",
-                  "murano", "bvt", "deploy_murano_bvt"])
+                  "murano"])
     @log_snapshot_after_test
     def deploy_murano_plugin_full_ha(self):
         """Deploy a cluster with the Murano plugin in full HA mode.
