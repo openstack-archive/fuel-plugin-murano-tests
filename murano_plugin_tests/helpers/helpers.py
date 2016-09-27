@@ -17,14 +17,19 @@ import re
 import time
 import urllib2
 
+from six.moves import urllib
+
+from murano_plugin_tests.murano_plugin import plugin_settings
+
 from devops.helpers import helpers
 from fuelweb_test.helpers import os_actions
+from fuelweb_test.helpers.ssh_manager import SSHManager
 from fuelweb_test import logger
 from proboscis import asserts
 
-from murano_plugin_tests.helpers import remote_ops
-from murano_plugin_tests import settings
+from devops.helpers.helpers import wait
 
+from murano_plugin_tests.helpers import remote_ops
 
 PLUGIN_PACKAGE_RE = re.compile(r'([^/]+)-(\d+\.\d+)-(\d+\.\d+\.\d+)')
 
@@ -84,6 +89,7 @@ class PluginHelper(object):
         self._cluster_id = None
         self.nailgun_client = self.fuel_web.client
         self._os_conn = None
+        self.ssh_manager = SSHManager()
 
     @property
     def cluster_id(self):
@@ -608,3 +614,132 @@ class PluginHelper(object):
                         resource_name, pcm_nodes), config), None,
                 'Resource [{0}] is not properly configured'.format(
                     resource_name))
+
+    @staticmethod
+    def get_last_timestamp(repo_uri, distro='centos'):
+        website = urllib.request.urlopen(repo_uri)
+
+        if distro == 'centos':
+            uri_starts = 'proposed-'
+        elif distro == 'ubuntu':
+            uri_starts = '9.0-'
+
+        html = website.read()
+        links = re.findall(
+            uri_starts + '[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}', html)
+
+        return max([timestamp.replace(uri_starts, '')
+                    for timestamp in list(set(links))])
+
+    def add_centos_test_proposed_repo(self, repo_url, timestamp):
+        cmds = ["yum-config-manager --add-repo {0}proposed-{1}/x86_64/".format(
+                repo_url, timestamp),
+
+                "rpm --import {0}proposed-{1}/RPM-GPG-KEY-mos9.0".format(
+                repo_url, timestamp)]
+        for cmd in cmds:
+
+            self.ssh_manager.check_call(
+                ip=self.ssh_manager.admin_ip,
+                command=cmd)
+
+    def add_cluster_repo(self, repo):
+        attributes = self.fuel_web.client.get_cluster_attributes(
+            self.cluster_id)
+        repos_attr = attributes['editable']['repo_setup']['repos']
+        repos_attr['value'].append(repo)
+        self.fuel_web.client.update_cluster_attributes(
+            self.cluster_id, attributes)
+
+    def install_python_cudet(self):
+        cmd = "yum install -y python-cudet"
+        self.ssh_manager.check_call(
+            ip=self.ssh_manager.admin_ip,
+            command=cmd)
+
+    def prepare_update_master_node(self):
+        cmds = ['update-prepare prepare master',
+                'update-prepare update master']
+        for cmd in cmds:
+            self.ssh_manager.check_call(
+                ip=self.ssh_manager.admin_ip,
+                command=cmd)
+
+    def prepare_for_update(self):
+        cmd = "update-prepare prepare env {}".format(self.cluster_id)
+
+        self.ssh_manager.check_call(
+            ip=self.ssh_manager.admin_ip,
+            command=cmd)
+
+    def update_nodes_with_key(self, uri, timestamp, murano_node=None):
+
+        cmd = "wget -qO - {0}9.0-{1}/archive-mos9.0-proposed.key  | sudo " \
+              "apt-key add -".format(uri, timestamp)
+
+        compute_ip = self.fuel_web.get_nailgun_cluster_nodes_by_roles(
+            self.cluster_id, ['compute'])[0]['ip']
+
+        controller_ip = self.fuel_web.get_nailgun_cluster_nodes_by_roles(
+            self.cluster_id, ['controller'])[0]['ip']
+
+        nodes = [compute_ip, controller_ip]
+
+        if murano_node:
+
+            murano_ip = self.fuel_web.get_nailgun_cluster_nodes_by_roles(
+                self.cluster_id, [plugin_settings.role_name])[0]['ip']
+            nodes.extend(murano_ip)
+
+        nodes = [compute_ip, controller_ip, murano_ip]
+        for node in nodes:
+            self.ssh_manager.check_call(
+                ip=node,
+                command=cmd)
+
+    def install_mu(self, repos='proposed'):
+        if repos:
+            cmd = "fuel2 update install --env {} --repos {} " \
+                  "--restart-rabbit --restart-mysql".format(self.cluster_id,
+                                                            repos)
+        else:
+            cmd = "fuel2 update install --env {}" \
+                  "--restart-rabbit --restart-mysql ".format(self.cluster_id)
+
+        std_out = self.ssh_manager.check_call(
+            ip=self.ssh_manager.admin_ip,
+            command=cmd).stderr_str
+
+        # "fuel2 update" command don't have json output
+        asserts.assert_true(
+            "fuel2 task show" in std_out,
+            "fuel2 update command don't return task id: \n {}".format(std_out))
+
+        task_id = int(std_out.split("fuel2 task show")[1].split("`")[0])
+        task = self.fuel_web.client.get_task(task_id)
+
+        self.assert_cli_task_success(task, timeout=120 * 60)
+
+    def assert_cli_task_success(self, task, timeout=70 * 60, interval=20):
+        logger.info('Wait {timeout} seconds for task: {task}'
+                    .format(timeout=timeout, task=task))
+        start = time.time()
+        wait(
+            lambda: (self.fuel_web.client.get_task(task['id'])['status'] not in
+                     ('pending', 'running')),
+            interval=interval,
+            timeout=timeout,
+            timeout_msg='Waiting timeout {timeout} sec was reached '
+                        'for task: {task}'.format(task=task["name"],
+                                                  timeout=timeout)
+        )
+        took = time.time() - start
+        task = self.fuel_web.client.get_task(task['id'])
+        logger.info('Task finished in {took} seconds with the result: {task}'
+                    .format(took=took, task=task))
+        asserts.assert_equal(
+            task['status'], 'ready',
+            "Task '{name}' has incorrect status. {status} != {exp}".format(
+                status=task['status'], exp='ready', name=task["name"]
+            )
+        )
