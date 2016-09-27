@@ -19,3 +19,10 @@ from fuelweb_test.settings import *  # noqa
 # Murano plugins
 
 MURANO_PLUGIN_PATH = os.environ.get('MURANO_PLUGIN_PATH')
+
+# Centos Repo for upgrade
+
+CENTOS_REPO_URL = 'http://mirror.fuel-infra.org/mos-repos/centos/' \
+                  'mos9.0-centos7/snapshots/'
+
+UBUNTU_REPO_URL = 'http://mirror.fuel-infra.org/mos-repos/ubuntu/snapshots/'
