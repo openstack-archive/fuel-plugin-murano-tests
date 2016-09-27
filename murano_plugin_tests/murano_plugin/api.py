@@ -18,10 +18,13 @@ from devops.helpers import helpers as devops_helpers
 from fuelweb_test import logger
 from fuelweb_test.tests import base_test_case
 
+from murano_plugin_tests import settings
+
 from murano_plugin_tests.helpers import checkers
 from murano_plugin_tests.helpers import helpers
 from murano_plugin_tests.helpers import remote_ops
 from murano_plugin_tests.murano_plugin import plugin_settings
+
 
 
 class MuranoPluginApi(object):
@@ -152,3 +155,33 @@ class MuranoPluginApi(object):
             nailgun_nodes[:1])
         operations[operation](target_node)
         self.wait_plugin_online()
+
+    def apply_maintenance_update_90_to_91(self):
+        """Method applies maintenance updates on whole cluster
+        from MOS9.0 to MOS9.1
+
+        1) Add latest proposed repository
+        2) Import PGP key for installed repository
+        3) Install `python-cudet`
+        4) Add repository and deploy changes
+        5) Update with keys all nodes
+        6) Update-prepare prepare master
+        7) Update-prepare update master
+        8) Update-prepare prepare env
+        9) Update
+        10) Verify that you have the latest packages included in
+        Mirantis OpenStack 9.1 -  Potential updates: ALL NODES UP-TO-DATE
+
+        """
+        logger.info("Add latest proposed repository")
+
+        timestamp = self.get_last_timestamp(settings.CENTOS_REPO_URL)
+        self.add_centos_test_proposed_repo(settings.CENTOS_REPO_URL, timestamp)
+        self.install_python_cudet()
+        self.prepare_update_master_node()
+        self.prepare_for_update()
+
+
+
+
+

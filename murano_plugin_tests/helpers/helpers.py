@@ -17,14 +17,15 @@ import re
 import time
 import urllib2
 
+from six.moves import urllib
+
 from devops.helpers import helpers
 from fuelweb_test.helpers import os_actions
 from fuelweb_test import logger
+from fuelweb_test.helpers import ssh_manager
 from proboscis import asserts
 
 from murano_plugin_tests.helpers import remote_ops
-from murano_plugin_tests import settings
-
 
 PLUGIN_PACKAGE_RE = re.compile(r'([^/]+)-(\d+\.\d+)-(\d+\.\d+\.\d+)')
 
@@ -84,6 +85,7 @@ class PluginHelper(object):
         self._cluster_id = None
         self.nailgun_client = self.fuel_web.client
         self._os_conn = None
+        self.ssh_manager = ssh_manager
 
     @property
     def cluster_id(self):
@@ -608,3 +610,194 @@ class PluginHelper(object):
                         resource_name, pcm_nodes), config), None,
                 'Resource [{0}] is not properly configured'.format(
                     resource_name))
+
+    @staticmethod
+    def get_last_timestamp(repo_uri):
+        website = urllib.request.urlopen(repo_uri)
+        html = website.read()
+        links = re.findall('proposed-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}', html)
+        return max([timestamp.replace('proposed-', '')
+                    for timestamp in list(set(links))])
+
+    def add_centos_test_proposed_repo(self, repo_url, timestamp):
+        cmds = ["yum-config-manager --add-repo {0}proposed-{1}/x86_64/".format(
+                repo_url, timestamp),
+                "rpm --import {0}proposed-{1}/RPM-GPG-KEY-mos9.0".format(
+                repo_url, timestamp)]
+        for cmd in cmds:
+            self.ssh_manager.ss.check_call(
+                ip=self.ssh_manager.admin_ip,
+                command=cmd)
+
+    def install_python_cudet(self):
+        cmd = "yum install -y python-cudet"
+        self.ssh_manager.check_call(
+        ip=self.ssh_manager.admin_ip,
+        command=cmd)
+
+    def prepare_update_master_node(self):
+        cmds= ['update-prepare prepare master', 'update-prepare update master']
+        for cmd in cmds:
+            self.ssh_manager.ss.check_call(
+                ip=self.ssh_manager.admin_ip,
+                command=cmd)
+
+    #8) Update-prepare prepare env
+    def prepare_for_update(self, cluster_id = 1):
+        cmd = "update-prepare prepare env {}".format(cluster_id)
+
+        self.ssh_manager.check_call(
+        ip=self.ssh_manager.admin_ip,
+        command=cmd
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
