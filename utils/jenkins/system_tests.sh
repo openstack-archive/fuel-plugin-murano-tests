@@ -430,11 +430,11 @@ RunTest() {
     # run python test set to create environments, deploy and test product
     if [ "${DRY_RUN}" = "yes" ]; then
         echo export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${WORKSPACE}"
-        echo python murano_plugin_tests/run_tests.py -q --nologcapture --with-xunit ${OPTS}
+        echo python murano_plugin_tests/run_system_test.py -q --nologcapture --with-xunit ${OPTS}
     else
         export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${WORKSPACE}"
         echo ${PYTHONPATH}
-        python murano_plugin_tests/run_tests.py -q --nologcapture --with-xunit ${OPTS}
+        python murano_plugin_tests/run_system_test.py -q --nologcapture --with-xunit ${OPTS}
 
     fi
     ec=$?
