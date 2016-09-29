@@ -1,0 +1,10 @@
+Code-Review+1: Vladimir Khlyunev <vkhlyunev@mirantis.com>
+Code-Review+2: Kirill Zaitsev <kzaitsev@mirantis.com>
+Code-Review+2: Aleksey Zvyagintsev <azvyagintsev@mirantis.com>
+Workflow+1: Aleksey Zvyagintsev <azvyagintsev@mirantis.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Thu, 29 Sep 2016 13:38:38 +0000
+Reviewed-on: https://review.openstack.org/379411
+Project: openstack/fuel-plugin-murano-tests
+Branch: refs/heads/master
