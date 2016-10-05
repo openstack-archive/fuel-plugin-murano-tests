@@ -29,7 +29,8 @@ class TestMuranoFailover(api.MuranoPluginApi):
 
         self.check_plugin_failover(operation, role_name)
 
-        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.run_ostf(['sanity', 'smoke'])
+        self.check_plugin_online()
 
     @test(depends_on_groups=["deploy_murano_plugin"],
           groups=["failover", "murano", "system", "destructive",
