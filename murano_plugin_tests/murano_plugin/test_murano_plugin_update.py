@@ -44,7 +44,8 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.only_controllers)
 
-        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.helpers.run_ostf(['sanity', 'smoke'])
+        self.check_plugin_online()
 
         self.env.make_snapshot("deploy_murano_out_of_the_box", is_make=True)
 
@@ -75,7 +76,8 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
 
         self.helpers.apply_changes()
 
-        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.helpers.run_ostf(['sanity', 'smoke'])
+        self.check_plugin_online()
 
         self.env.make_snapshot(
             "deploy_murano_plugin_in_environment_with_murano",
@@ -112,7 +114,8 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
             'slave-03': plugin_settings.role_name,
         })
 
-        self.helpers.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.helpers.run_ostf(['sanity', 'smoke'])
+        self.check_plugin_online()
 
         self.env.make_snapshot("deploy_murano_node_in_environment_with_murano",
                                is_make=False)
