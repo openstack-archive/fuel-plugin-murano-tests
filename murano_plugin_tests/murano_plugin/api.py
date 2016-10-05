@@ -15,6 +15,7 @@
 import functools
 
 from devops.helpers import helpers as devops_helpers
+from fuelweb_test.helpers.decorators import retry
 from fuelweb_test import logger
 from fuelweb_test.tests import base_test_case
 
@@ -105,14 +106,26 @@ class MuranoPluginApi(object):
         self.helpers.activate_plugin(
             self.settings.name, self.settings.version, options)
 
+    @retry(count=3, delay=120)
     def check_plugin_online(self):
-        """Checks that plugin is working."""
+        """Checks that plugin is working. Runs platform Murano OSTF."""
         test_name = ('fuel_health.tests.tests_platform.test_murano_linux.'
                      'MuranoDeployLinuxServicesTests.'
                      'test_deploy_dummy_app_with_glare')
         self.helpers.run_single_ostf(test_sets=['tests_platform'],
                                      test_name=test_name,
                                      timeout=60 * 20)
+
+    @retry(count=3, delay=120)
+    def check_plugin_sanity(self):
+        """Checks that plugin is working. Runs sanity Murano OSTF."""
+        test_name = ('fuel_health.tests.sanity.test_sanity_murano.'
+                     'MuranoSanityTests.'
+                     'test_create_and_delete_service')
+
+        self.helpers.run_single_ostf(test_sets=['tests_platform'],
+                                     test_name=test_name,
+                                     timeout=5 * 10)
 
     def uninstall_plugin(self):
         """Uninstall plugin from Fuel."""
@@ -123,13 +136,13 @@ class MuranoPluginApi(object):
         return self.helpers.check_plugin_cannot_be_uninstalled(
             self.settings.name, self.settings.version)
 
-    def wait_plugin_online(self, timeout=5 * 60):
+    def wait_plugin_online(self, timeout=5 * 120):
         """Wait until the plugin will start working properly.
         """
 
         def check_availability():
             try:
-                self.check_plugin_online()
+                self.check_plugin_sanity()
                 return True
             except AssertionError:
                 return False
