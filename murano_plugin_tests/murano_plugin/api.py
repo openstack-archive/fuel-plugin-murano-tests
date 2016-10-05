@@ -15,6 +15,7 @@
 import functools
 
 from devops.helpers import helpers as devops_helpers
+from fuelweb_test.helpers.decorators import retry
 from fuelweb_test import logger
 from fuelweb_test.tests import base_test_case
 
@@ -105,6 +106,7 @@ class MuranoPluginApi(object):
         self.helpers.activate_plugin(
             self.settings.name, self.settings.version, options)
 
+    @retry(count=3, delay=120)
     def check_plugin_online(self):
         """Checks that plugin is working."""
         test_name = ('fuel_health.tests.tests_platform.test_murano_linux.'

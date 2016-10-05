@@ -52,7 +52,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.only_controllers)
 
-        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.run_ostf(['sanity', 'smoke', 'check_plugin_online'])
 
         self.env.make_snapshot("deploy_murano_plugin_on_controller",
                                is_make=True)
@@ -87,7 +87,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.only_controllers_ha)
 
-        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.run_ostf(['sanity', 'smoke', 'check_plugin_online'])
 
         self.env.make_snapshot("deploy_murano_plugin_on_controller_ha",
                                is_make=True)
@@ -123,7 +123,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.base_nodes)
 
-        self.run_ostf(['sanity', 'smoke', 'tests_platform'])
+        self.run_ostf(['sanity', 'smoke', 'check_plugin_online'])
 
         self.env.make_snapshot("deploy_murano_plugin", is_make=True)
 
@@ -158,7 +158,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.ha_nodes)
 
-        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
+        self.run_ostf(['sanity', 'smoke', 'ha', 'check_plugin_online'])
 
         self.env.make_snapshot("deploy_murano_plugin_ha", is_make=True)
 
@@ -193,7 +193,7 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.helpers.deploy_cluster(self.full_ha_nodes)
 
-        self.run_ostf(['sanity', 'smoke', 'ha', 'tests_platform'])
+        self.run_ostf(['sanity', 'smoke', 'ha', 'check_plugin_online'])
 
         self.env.make_snapshot("deploy_murano_plugin_full_ha", is_make=True)
 
