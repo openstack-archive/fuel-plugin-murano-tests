@@ -1,0 +1,8 @@
+Code-Review+2: Victor Ryzhenkin (freerunner) <vryzhenkin@mirantis.com>
+Workflow+1: Victor Ryzhenkin (freerunner) <vryzhenkin@mirantis.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Sat, 08 Oct 2016 21:34:25 +0000
+Reviewed-on: https://review.openstack.org/382444
+Project: openstack/fuel-plugin-murano-tests
+Branch: refs/heads/master
