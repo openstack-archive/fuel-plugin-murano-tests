@@ -49,7 +49,6 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
         self.helpers.deploy_cluster(self.only_controllers)
 
         self.run_ostf(['sanity', 'smoke'])
-        self.check_plugin_online()
 
         self.env.make_snapshot("deploy_environment_without_murano_plugin",
                                is_make=True)

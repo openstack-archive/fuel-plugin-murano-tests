@@ -116,7 +116,6 @@ class MuranoPluginApi(object):
                                      test_name=test_name,
                                      timeout=60 * 20)
 
-    @retry(count=3, delay=120)
     def check_plugin_sanity(self):
         """Checks that plugin is working. Runs sanity Murano OSTF."""
         test_name = ('fuel_health.tests.sanity.test_sanity_murano.'
