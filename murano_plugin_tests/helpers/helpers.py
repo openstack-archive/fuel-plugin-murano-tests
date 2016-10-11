@@ -608,3 +608,19 @@ class PluginHelper(object):
                         resource_name, pcm_nodes), config), None,
                 'Resource [{0}] is not properly configured'.format(
                     resource_name))
+
+    def get_plugin_pid(self, service_name):
+
+        controller_ip = self.fuel_web.get_nailgun_cluster_nodes_by_roles(
+            self.cluster_id, ['murano-node'])[0]['ip']
+
+        ps_output = self.ssh_manager.execute_on_remote(ip=controller_ip,
+                                                       cmd='ps ax')['stdout']
+        api = [ps for ps in ps_output if service_name in ps]
+
+        return api
+
+    def compare_pid(self, old_pid, new_pid):
+        asserts.assert_equal(old_pid, new_pid,
+                             'PID has changed after executing' \
+                             'setup_repositories command')
