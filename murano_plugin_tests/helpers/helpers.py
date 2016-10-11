@@ -608,3 +608,29 @@ class PluginHelper(object):
                         resource_name, pcm_nodes), config), None,
                 'Resource [{0}] is not properly configured'.format(
                     resource_name))
+
+    def get_plugin_pid(self, service_name):
+
+        controller_ip = self.fuel_web.get_nailgun_cluster_nodes_by_roles(
+            self.cluster_id, ['controller'])[0]['ip']
+
+        ps_output = self.ssh_manager.execute_on_remote(ip=controller_ip,
+                                                       cmd='ps ax')['stdout']
+        api = [ps for ps in ps_output if service_name in ps]
+        logger.info("PID list are {0}".format(api))
+        return api
+
+    def setup_repositories(self):
+        nodes_id = [node['id'] for node in
+                    self.nailgun_client.list_cluster_nodes(self.cluster_id)]
+        for node_id in nodes_id:
+            cmd = "fuel --env {0} node --node-id {1}" \
+                  "--tasks setup_repositories".format(self.cluster_id, node_id)
+
+            self.ssh_manager.check_call(ip=self.ssh_manager.admin_ip,
+                                        command=cmd)
+
+    def compare_pid(self, old_pid, new_pid):
+        asserts.assert_equal(old_pid, new_pid,
+                             'PID has changed after executing' \
+                             'setup_repositories command')

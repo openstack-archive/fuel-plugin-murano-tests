@@ -132,3 +132,44 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
         self.run_ostf(['sanity', 'smoke', 'ha'])
 
         self.env.make_snapshot("add_remove_murano_node", is_make=False)
+
+    @test(depends_on_groups=[
+        "deploy_murano_plugin_in_environment_with_murano"],
+          groups=["mirror", "system",
+                  "create_mirror_and_check_murano_services"])
+    @log_snapshot_after_test
+    def create_mirror_and_check_murano_services(self):
+        """Verify that Murano services is alive after fuel create mirror
+
+        Scenario:
+            1. Revert snapshot with deployed cluster
+            (deploy_murano_plugin_in_environment_with_murano)
+            2. Save PID of the plugin services
+            3. Execute setup_repositories command for murano-node
+            from master node
+            4. Check that PID wasn't changed
+            5. Check that plugin is working
+            6. Run Murano Platform OSTF
+
+        Duration 120m
+        Snapshot create_mirror_and_check_murano_services
+        """
+        self.env.revert_snapshot(
+            "deploy_murano_plugin_in_environment_with_murano")
+
+        pid = self.helpers.get_plugin_pid('murano')
+
+        self.helpers.setup_repositories()
+
+        new_pid = self.helpers.get_plugin_pid('murano')
+
+        self.helpers.compare_pid(pid, new_pid)
+
+        self.check_plugin_online()
+
+        self.run_ostf(['sanity', 'smoke', 'ha'])
+
+        self.check_plugin_online()
+
+        self.env.make_snapshot("create_mirror_and_check_murano_services",
+                               is_make=False)
