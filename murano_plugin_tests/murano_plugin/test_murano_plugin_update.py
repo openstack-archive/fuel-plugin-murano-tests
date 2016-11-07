@@ -86,7 +86,7 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
     @test(depends_on=[deploy_murano_out_of_the_box],
           groups=["deploy_murano_and_plugin_add_role", "deploy",
                   "murano", "murano_plugin_upgrade",
-                  "deploy_murano_plugin_in_environment_with_murano"])
+                  "deploy_murano_node_in_environment_with_murano"])
     @log_snapshot_after_test
     def deploy_murano_node_in_environment_with_murano(self):
         """Upgrade Murano via plugin (adding murano-node) and run OSTF tests.

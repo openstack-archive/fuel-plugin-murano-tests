@@ -24,7 +24,7 @@ class TestMuranoPluginMU(api.MuranoPluginApi):
 
     @test(depends_on_groups=["deploy_murano_plugin"],
           groups=["test_mu_upgrade_murano_node", "murano",
-                  "test_mu_upgrade", "murano_plugin_upgrade"])
+                  "test_mu_upgrade", "maintenance_update"])
     @log_snapshot_after_test
     def test_mu_upgrade_murano_node(self):
         """Apply MU over cluster with plugin and Murano node
@@ -43,13 +43,13 @@ class TestMuranoPluginMU(api.MuranoPluginApi):
 
         self.env.revert_snapshot("deploy_murano_plugin")
         self.wait_plugin_online()
-        self.apply_maintenance_update_90_to_91()
+        self.apply_maintenance_update()
         self.run_ostf(['sanity', 'smoke'])
         self.check_plugin_online()
 
     @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
           groups=["test_mu_upgrade_murano_plugin", "murano",
-                  "test_mu_upgrade", "murano_plugin_upgrade"])
+                  "test_mu_upgrade", "maintenance_update"])
     @log_snapshot_after_test
     def test_mu_upgrade_without_murano_node(self):
         """Apply MU over cluster with plugin without Murano node
@@ -68,6 +68,6 @@ class TestMuranoPluginMU(api.MuranoPluginApi):
 
         self.env.revert_snapshot("deploy_murano_plugin_on_controller")
         self.wait_plugin_online()
-        self.apply_maintenance_update_90_to_91()
+        self.apply_maintenance_update()
         self.run_ostf(['sanity', 'smoke'])
         self.check_plugin_online()

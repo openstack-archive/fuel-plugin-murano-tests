@@ -19,8 +19,6 @@ from fuelweb_test.helpers.decorators import retry
 from fuelweb_test import logger
 from fuelweb_test.tests import base_test_case
 
-from murano_plugin_tests import settings
-
 from murano_plugin_tests.helpers import checkers
 from murano_plugin_tests.helpers import helpers
 from murano_plugin_tests.helpers import remote_ops
@@ -167,9 +165,9 @@ class MuranoPluginApi(object):
         operations[operation](target_node)
         self.wait_plugin_online()
 
-    def apply_maintenance_update_90_to_91(self):
+    def apply_maintenance_update(self):
         """Method applies maintenance updates on whole cluster
-        from MOS9.0 to MOS9.1
+        from MOS 9.0 to MOS 9.x
 
         1) Add latest proposed repository
         2) Import PGP key for installed repository
@@ -184,25 +182,7 @@ class MuranoPluginApi(object):
         Mirantis OpenStack 9.1 -  Potential updates: ALL NODES UP-TO-DATE
 
         """
-        logger.info("Add latest proposed repository")
-
-        timestamp = settings.MOS_CENTOS_PROPOSED_MIRROR_ID
-        self.helpers.add_centos_test_proposed_repo(
-            settings.CENTOS_REPO_URL, timestamp)
-
-        logger.info("Add extra Ubuntu repo to deployed cluster")
-
-        timestamp_ubuntu = settings.MOS_UBUNTU_MIRROR_ID
-
-        proposed = {
-            'name': 'proposed',
-            'section': 'main restricted',
-            'uri': settings.UBUNTU_REPO_URL + timestamp_ubuntu + '/',
-            'priority': 1200,
-            'suite': 'mos9.0-proposed',
-            'type': 'deb'}
-
-        self.helpers.add_cluster_repo(proposed)
+        self.helpers.add_update_repo()
 
         logger.info("Install python-cudet library")
 

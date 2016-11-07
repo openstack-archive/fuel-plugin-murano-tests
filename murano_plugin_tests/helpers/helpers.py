@@ -653,14 +653,9 @@ class PluginHelper(object):
             ip=self.ssh_manager.admin_ip,
             command=cmd)
 
-    def install_mu(self, repos='proposed'):
-        if repos:
-            cmd = "fuel2 update install --env {} --repos {} " \
-                  "--restart-rabbit --restart-mysql".format(self.cluster_id,
-                                                            repos)
-        else:
-            cmd = "fuel2 update install --env {}" \
-                  "--restart-rabbit --restart-mysql ".format(self.cluster_id)
+    def install_mu(self):
+        cmd = "fuel2 update install --env {}" \
+              "--restart-rabbit --restart-mysql".format(self.cluster_id)
 
         std_out = self.ssh_manager.check_call(
             ip=self.ssh_manager.admin_ip,
@@ -722,5 +717,22 @@ class PluginHelper(object):
 
     def compare_pid(self, old_pid, new_pid):
         asserts.assert_equal(old_pid, new_pid,
-                             'PID has changed after executing' \
+                             'PID has changed after executing'
                              'setup_repositories command')
+
+    def add_update_repo(self):
+        ip = self.ssh_manager.admin_ip
+        logger.info("Adding update mirror")
+        cmd = ("yum-config-manager --add-repo=http://mirror.fuel-infra.org/"
+               "mos-repos/centos/mos9.0-centos7/updates/x86_64/")
+        self.ssh_manager.execute_on_remote(ip, cmd,
+                                           err_msg="Adding repo failed")
+        logger.info("Importing GPG keys")
+        cmd = ("rpm --import http://mirror.fuel-infra.org/mos-repos/"
+               "centos/mos9.0-centos7/updates/RPM-GPG-KEY-mos9.0")
+        self.ssh_manager.execute_on_remote(ip, cmd,
+                                           err_msg="GPG keys import failed")
+        logger.info("Cleaning yum cache")
+        cmd = "yum clean all"
+        self.ssh_manager.execute_on_remote(
+            ip, cmd, err_msg="yum cache flush unsuccessful")
