@@ -108,7 +108,7 @@ class TestMuranoFailover(api.MuranoPluginApi):
         self._test_failover("hard_reboot", ["controller"],
                             "deploy_murano_plugin_on_controller")
 
-    @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
+    @test(depends_on_groups=["deploy_murano_plugin"],
           groups=["mirror", "system", "failover",
                   "create_mirror_and_check_murano_services"])
     @log_snapshot_after_test
@@ -129,7 +129,7 @@ class TestMuranoFailover(api.MuranoPluginApi):
         Snapshot create_mirror_and_check_murano_services
         """
         self.env.revert_snapshot(
-            "deploy_murano_plugin_on_controller")
+            "deploy_murano_plugin")
 
         pid = self.helpers.get_plugin_pid('murano')
 
