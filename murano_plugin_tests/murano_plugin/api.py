@@ -163,7 +163,7 @@ class MuranoPluginApi(object):
         target_node = fuel_web_client.get_devops_nodes_by_nailgun_nodes(
             nailgun_nodes[:1])
         operations[operation](target_node)
-        self.wait_plugin_online()
+        self.helpers.wait_os_cluster_readiness()
 
     def apply_maintenance_update(self):
         """Method applies maintenance updates on whole cluster
