@@ -736,3 +736,7 @@ class PluginHelper(object):
         cmd = "yum clean all"
         self.ssh_manager.execute_on_remote(
             ip, cmd, err_msg="yum cache flush unsuccessful")
+
+    def wait_os_cluster_readiness(self, timeout=15 * 60):
+        self.fuel_web.assert_os_services_ready(self.cluster_id,
+                                               timeout=timeout)
