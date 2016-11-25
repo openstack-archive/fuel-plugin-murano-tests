@@ -114,3 +114,28 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
         self.helpers.apply_changes()
 
         self.check_plugin_online()
+
+    @test(depends_on=["deploy_murano_plugin_on_controller"],
+          groups=["move_murano_plugin_on_environment_from_controller"
+                  "_to_murano_node", "deploy", "murano_plugin",
+                  "post_installation", 'murano'])
+    @log_snapshot_after_test
+    def move_murano_plugin_on_environment_from_controller_to_murano_node(self):
+        """Move Murano plugin on environment from controller to murano-node.
+        Scenario:
+            1. Revert snapshot with deployed non-ha cluster with Murano plugin
+            2. Add 1 node with murano-node role
+            3. Deploy changes
+            4. Run OSTF
+        Duration 120m
+        Snapshot move_murano_plugin_on_environment_from_controller_to_murano_node
+        """
+
+        self.env.revert_snapshot("deploy_murano_plugin_on_controller")
+
+        self.helpers.deploy_cluster({
+            'slave-03': plugin_settings.role_name,
+        })
+
+        self.run_ostf(['sanity', 'smoke'])
+        self.check_plugin_online()
