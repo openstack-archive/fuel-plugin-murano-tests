@@ -26,14 +26,14 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "hi:", "ifile=")
         if not opts:
-            print ('No options supplied. For help use -h')
+            print('No options supplied. For help use -h')
             sys.exit(2)
     except getopt.GetoptError:
-        print ('parser.py -i <inputfile>')
+        print('parser.py -i <inputfile>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print ('parser.py -i <inputfile>')
+            print('parser.py -i <inputfile>')
             sys.exit()
         elif opt in ("-i", "--ifile"):
             inputfile = arg
@@ -68,7 +68,7 @@ def create_config(dict):
 if __name__ == "__main__":
     inputfile = main(sys.argv[1:])
     if not os.access(inputfile, os.R_OK):
-        print ("Cannot read the file: {0}. It may or not may exist".format(
+        print("Cannot read the file: {0}. It may or not may exist".format(
             inputfile))
         sys.exit(2)
     dict = read_values(inputfile)
