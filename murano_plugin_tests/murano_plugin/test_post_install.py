@@ -115,7 +115,7 @@ class TestMuranoPostInstallation(api.MuranoPluginApi):
 
         self.check_plugin_online()
 
-    @test(depends_on=["deploy_murano_plugin_on_controller"],
+    @test(depends_on_groups=["deploy_murano_plugin_on_controller"],
           groups=["move_murano_plugin_on_environment_from_controller"
                   "_to_murano_node", "deploy", "murano_plugin",
                   "post_installation", 'murano'])
