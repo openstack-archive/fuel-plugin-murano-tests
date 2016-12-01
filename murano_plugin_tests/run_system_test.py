@@ -44,6 +44,7 @@ def import_tests():
     from murano_plugin import test_murano_maintenance_update  # noqa
     from murano_plugin import test_murano_plugin_bvt  # noqa
     from murano_plugin import test_murano_plugin_update  # noqa
+    from murano_plugin import test_murano_plugin_upgrade  # noqa
     from murano_plugin import test_post_install  # noqa
     from murano_plugin import test_system  # noqa
 
