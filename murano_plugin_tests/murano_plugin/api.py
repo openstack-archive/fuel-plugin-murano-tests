@@ -105,12 +105,15 @@ class MuranoPluginApi(object):
     def run_ostf(self, test_sets):
         self.helpers.run_ostf(test_sets=test_sets)
 
-    def activate_plugin(self, options=None):
+    def activate_plugin(self, name=None, version=None, options=None):
         """Enable and configure the plugin in the environment."""
+        if name is None:
+            name = self.settings.name
+        if version is None:
+            version = self.settings.version
         if options is None:
             options = self.settings.default_options
-        self.helpers.activate_plugin(
-            self.settings.name, self.settings.version, options)
+        self.helpers.activate_plugin(name, version, options)
 
     @retry(count=3, delay=120)
     def check_plugin_online(self):

@@ -802,3 +802,19 @@ class PluginHelper(object):
     def wait_os_cluster_readiness(self, timeout=15 * 60):
         self.fuel_web.assert_os_services_ready(self.cluster_id,
                                                timeout=timeout)
+
+    def add_and_enable_yum_repo_with_detach_plugin(self):
+        cmd = ('yum-config-manager --add-repo'
+               'http://mirror.seed-cz1.fuel-infra.org/'
+               'mos-plugins/centos/9.0/')
+        self.ssh_manager.check_call(
+            ip=self.ssh_manager.admin_ip,
+            command=cmd)
+
+    def install_detach_murano_plugin_from_repository(self, plugin_name):
+        cmds = ["yum install -y {}".format(plugin_name),
+                'fuel plugins --sync']
+        for cmd in cmds:
+            self.ssh_manager.check_call(
+                ip=self.ssh_manager.admin_ip,
+                command=cmd)
