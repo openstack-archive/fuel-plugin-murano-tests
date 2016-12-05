@@ -108,6 +108,16 @@ class PluginHelper(object):
                 self.fuel_web.get_public_vip(self.cluster_id))
         return self._os_conn
 
+    @property
+    def ceph_settings(self):
+        """Return a dict with ceph-related settings for the cluster"""
+        return {
+                'volumes_lvm': False,
+                'volumes_ceph': True,
+                'images_ceph': True,
+                'objects_ceph': True
+        }
+
     def prepare_plugin(self, plugin_path):
         """Upload and install plugin by path."""
         self.env.admin_actions.upload_plugin(plugin=plugin_path)
@@ -177,13 +187,13 @@ class PluginHelper(object):
                 self.nailgun_client.list_cluster_nodes(self.cluster_id)
                 if node["status"] == "ready"]
 
-    def create_cluster(self, name=None, settings=None, ssl=False):
+    def create_cluster(self, name=None, opts=None, ssl=False):
         """Create a cluster.
 
         :param name: name of the cluster.
         :type name: str
-        :param settings: optional dict containing the cluster's configuration.
-        :type settings: dict
+        :param opts: optional dict containing the cluster's configuration.
+        :type opts: dict
         :param ssl: parameter, that shows, use SSL or not.
         :type ssl: bool
         :returns: the cluster's id
@@ -191,9 +201,11 @@ class PluginHelper(object):
         """
         if not name:
             name = self.__class__.__name__
+        if not opts:
+            opts = self.ceph_settings
         self._cluster_id = self.env.fuel_web.create_cluster(
             name=name,
-            settings=settings,
+            settings=opts,
             mode='ha_compact',
             configure_ssl=ssl)
         return self._cluster_id
