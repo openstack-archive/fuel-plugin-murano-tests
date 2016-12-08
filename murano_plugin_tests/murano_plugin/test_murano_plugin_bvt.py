@@ -191,7 +191,16 @@ class TestMuranoPluginBvt(api.MuranoPluginApi):
 
         self.prepare_plugin()
 
-        self.helpers.create_cluster(name=self.__class__.__name__)
+        opts = {
+                'volumes_lvm': False,
+                'volumes_ceph': True,
+                'images_ceph': True,
+                'objects_ceph': True,
+                'osd_pool_size': "3"
+        }
+
+        self.helpers.create_cluster(name=self.__class__.__name__,
+                                    opts=opts)
 
         self.activate_plugin()
 
