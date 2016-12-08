@@ -62,10 +62,13 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
 
         self.run_ostf(['sanity', 'smoke', 'ha'])
 
-        compute_manipulated_node = {'slave-04': ['compute', 'cinder']}
+        compute_manipulated_node = {'slave-04': ['compute', 'ceph-osd']}
 
         # Remove compute
-        self.helpers.remove_nodes_from_cluster(compute_manipulated_node)
+        self.helpers.remove_nodes_from_cluster(compute_manipulated_node,
+                                               redeploy=False)
+        self.set_replication_factor(replicas="2")
+        self.helpers.apply_changes()
 
         self.check_plugin_online()
 
@@ -82,7 +85,10 @@ class TestSystemMuranoPlugin(api.MuranoPluginApi):
         self.run_ostf(['sanity', 'smoke', 'ha'])
 
         # Add compute
-        self.helpers.add_nodes_to_cluster(compute_manipulated_node)
+        self.helpers.add_nodes_to_cluster(compute_manipulated_node,
+                                          redeploy=False)
+        self.set_replication_factor(replicas="3")
+        self.helpers.apply_changes()
 
         self.check_plugin_online()
 

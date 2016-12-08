@@ -115,7 +115,9 @@ class PluginHelper(object):
                 'volumes_lvm': False,
                 'volumes_ceph': True,
                 'images_ceph': True,
-                'objects_ceph': True
+                'objects_ceph': True,
+                'ephemeral_ceph': True,
+                'osd_pool_size': "1"
         }
 
     def prepare_plugin(self, plugin_path):
@@ -345,6 +347,54 @@ class PluginHelper(object):
         logger.info('Wait a %s node offline status', node.name)
         helpers.wait(lambda: not self.fuel_web.get_nailgun_node_by_devops_node(
             node)['online'], timeout=60 * 5, timeout_msg=msg)
+
+    def update_cluster_settings(self, opts):
+        attrs = self.fuel_web.client.get_cluster_attributes(self.cluster_id)
+
+        for option in opts:
+            section = ''
+            if option in ('sahara', 'murano', 'ceilometer', 'mongo',
+                          'ironic'):
+                section = 'additional_components'
+            elif option in {'mongo_db_name', 'mongo_replset', 'mongo_user',
+                            'hosts_ip', 'mongo_password'}:
+                section = 'external_mongo'
+            elif option in {'volumes_ceph', 'images_ceph',
+                            'ephemeral_ceph', 'objects_ceph',
+                            'osd_pool_size', 'volumes_lvm',
+                            'volumes_block_device', 'images_vcenter'}:
+                section = 'storage'
+            elif option in {'tenant', 'password', 'user'}:
+                section = 'access'
+            elif option == 'assign_to_all_nodes':
+                section = 'public_network_assignment'
+            elif option in {'neutron_l3_ha', 'neutron_dvr',
+                            'neutron_l2_pop'}:
+                section = 'neutron_advanced_configuration'
+            elif option in {'dns_list'}:
+                section = 'external_dns'
+            elif option in {'ntp_list'}:
+                section = 'external_ntp'
+            elif option in {'propagate_task_deploy'}:
+                section = 'common'
+            if section:
+                try:
+                    attrs['editable'][section][option]['value'] = \
+                        opts[option]
+                except KeyError:
+                    if section not in attrs['editable']:
+                        raise KeyError(
+                            "Section '{0}' not in "
+                            "attributes['editable']: {1}".format(
+                                section, attrs['editable'].keys()))
+                    raise KeyError(
+                        "Option {0} not in attributes['editable'][{1}]: "
+                        "{2}".format(
+                            option, section,
+                            attrs['editable'][section].keys()))
+
+        return self.fuel_web.client.update_cluster_attributes(
+            self.cluster_id, attrs)
 
     def emulate_whole_network_disaster(self, delay_before_recover=5 * 60,
                                        wait_become_online=True):

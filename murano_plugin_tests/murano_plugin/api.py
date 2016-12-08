@@ -92,6 +92,12 @@ class MuranoPluginApi(object):
             'slave-09': self.settings.role_name,
         }
 
+    def set_replication_factor(self, replicas='1'):
+        opts = {
+            'osd_pool_size': replicas
+        }
+        return self.helpers.update_cluster_settings(opts)
+
     def prepare_plugin(self):
         """Upload and install the plugin on the Fuel master node."""
         self.helpers.prepare_plugin(self.settings.plugin_path)
