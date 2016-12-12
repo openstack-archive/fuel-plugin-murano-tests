@@ -39,8 +39,18 @@ class TestMuranoPluginUpdate(api.MuranoPluginApi):
         """
         self.env.revert_snapshot("ready_with_3_slaves")
 
+        opts = {
+            'volumes_lvm': False,
+            'volumes_ceph': True,
+            'images_ceph': True,
+            'objects_ceph': True,
+            'ephemeral_ceph': True,
+            'osd_pool_size': "1",
+            'murano': True
+        }
+
         self.helpers.create_cluster(name=self.__class__.__name__,
-                                    settings={'murano': True})
+                                    opts=opts)
 
         self.helpers.deploy_cluster(self.only_controllers)
 
