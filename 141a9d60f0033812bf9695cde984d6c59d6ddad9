@@ -1,0 +1,8 @@
+Code-Review+2: Kirill Zaitsev <k.zaitsev@me.com>
+Workflow+1: Kirill Zaitsev <k.zaitsev@me.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 23 May 2017 06:48:24 +0000
+Reviewed-on: https://review.openstack.org/416143
+Project: openstack/fuel-plugin-murano-tests
+Branch: refs/heads/master
