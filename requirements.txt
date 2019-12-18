@@ -1,6 +1,0 @@
-git+git://github.com/openstack/fuel-devops.git@3.0.3#egg=project[postgre]
-oslo.i18n>=3.1.0  # the more recent python-*client (dependencies of fuel-qa) require at least this version of oslo.i18n
-PyYAML
-requests
-six
-tox
